@@ -38,7 +38,7 @@
 
 ## 4. Documentation
 
-- [ ] 4.1 Update `doc/PLEX.md` (step 4 "Find the library section ID(s)" and
+- [x] 4.1 Update `doc/PLEX.md` (step 4 "Find the library section ID(s)" and
   step 5 "Configure yarrtube") and any compose/README examples to use
   `YARRTUBE_PLEX_PLAYLIST_SECTION_ID` / `YARRTUBE_PLEX_CHANNEL_SECTION_ID`,
   explaining that each library must be one kind. Verify by rereading the doc
@@ -46,6 +46,6 @@
 
 ## 5. Validation
 
-- [ ] 5.1 Run `cargo test --locked`, `cargo fmt --all -- --check`, and
+- [x] 5.1 Run `cargo test --locked`, `cargo fmt --all -- --check`, and
   `cargo clippy --all-targets --all-features --locked -- -D warnings`; all
   pass.
