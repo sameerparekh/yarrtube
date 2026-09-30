@@ -77,9 +77,11 @@ against your tracked playlists and channel libraries against your tracked
 channels, configured with two separate variables:
 
 - `YARRTUBE_PLEX_PLAYLIST_SECTION_ID` — the section id(s) of the Plex
-  librarie(s) holding your **playlist** downloads (`/videos/playlists`).
+  library or libraries holding your **playlist** downloads
+  (`/videos/playlists`).
 - `YARRTUBE_PLEX_CHANNEL_SECTION_ID` — the section id(s) of the Plex
-  librarie(s) holding your **channel** downloads (`/videos/channels`).
+  library or libraries holding your **channel** downloads
+  (`/videos/channels`).
 
 Each Plex library must hold **one kind only**. yarrtube matches videos to
 Plex items by YouTube ID, not by file path, so a single library mixing
