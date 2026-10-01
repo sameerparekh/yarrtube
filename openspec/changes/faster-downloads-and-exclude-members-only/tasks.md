@@ -22,7 +22,7 @@
 ## 5. Reconcilers never recover excluded videos
 
 - [x] 5.1 Add a `PlaylistVideoReconciler` test: a reconcile pass finding an `Excluded` video (even with an ancient timestamp) does not reset it to `Pending` and schedules no download. (No production change expected since recovery keys off `Errored`; this locks the behavior in.)
-- [ ] 5.2 Add the equivalent `ChannelVideoReconciler` test for an `Excluded` video.
+- [x] 5.2 Add the equivalent `ChannelVideoReconciler` test for an `Excluded` video.
 
 ## 6. Hide excluded videos from the video lists
 
