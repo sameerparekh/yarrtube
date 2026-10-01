@@ -138,6 +138,8 @@ pub fn download_video(
     let output_template = format!("{folder}.%(ext)s");
     let mut args = args_for_quality(quality);
     args.extend([
+        "--concurrent-fragments".to_string(),
+        "4".to_string(),
         "--embed-thumbnail".to_string(),
         "--write-thumbnail".to_string(),
         "--convert-thumbnails".to_string(),
@@ -836,6 +838,8 @@ mod tests {
 
         let mut expected = args_for_quality(Quality::High);
         expected.extend([
+            "--concurrent-fragments".to_string(),
+            "4".to_string(),
             "--embed-thumbnail".to_string(),
             "--write-thumbnail".to_string(),
             "--convert-thumbnails".to_string(),
@@ -907,6 +911,8 @@ mod tests {
 
         let mut expected = args_for_quality(Quality::High);
         expected.extend([
+            "--concurrent-fragments".to_string(),
+            "4".to_string(),
             "--embed-thumbnail".to_string(),
             "--write-thumbnail".to_string(),
             "--convert-thumbnails".to_string(),
