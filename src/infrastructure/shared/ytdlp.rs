@@ -1221,7 +1221,11 @@ mod tests {
     }
 
     #[cfg(unix)]
-    fn fake_ytdlp_writing_stderr(dir_name: &str, stderr: &str, exit_code: i32) -> std::path::PathBuf {
+    fn fake_ytdlp_writing_stderr(
+        dir_name: &str,
+        stderr: &str,
+        exit_code: i32,
+    ) -> std::path::PathBuf {
         use std::os::unix::fs::PermissionsExt;
 
         let bin_dir = test_support::unique_temp_dir(dir_name);

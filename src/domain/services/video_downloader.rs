@@ -43,6 +43,19 @@ fn is_permanently_unavailable_reason(reason: &str) -> bool {
         .any(|token| reason.contains(token))
 }
 
+/// Joins the diagnosed reason (the richer signal) with the download's own
+/// stderr (the fallback) for logging and classification, skipping whichever
+/// is absent or empty.
+fn combined_reason(diagnosed: Option<&str>, stderr: Option<&str>) -> String {
+    [diagnosed, stderr]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" | ")
+}
+
 /// Downloads one video via `yt-dlp`, transitioning it through in-progress to
 /// downloaded/errored. Container-agnostic: the caller (a task handler)
 /// already resolved the video's owning container's quality and output
@@ -217,18 +230,63 @@ impl VideoDownloader {
             .then(|| format!("{}/{}", downloaded.folder, expected_thumbnail)))
     }
 
-    /// A clean `yt-dlp` failure: marks the video errored and returns
-    /// `yt-dlp`'s reported error so the task queue retries/dead-letters it.
+    /// A clean `yt-dlp` failure: diagnoses the precise reason (see design.md),
+    /// logs it, and either excludes a permanently-unavailable video (settling
+    /// the task with `Ok(())`, so it is neither retried nor dead-lettered) or
+    /// keeps the current errored/retry behavior and returns `Err`.
     fn record_failed(
         &self,
         started: Video,
         stderr: Option<String>,
         is_last_attempt: bool,
     ) -> anyhow::Result<()> {
+        let diagnosed = self.diagnose_failure(&started.youtube_id.to_url());
+        let reason = combined_reason(diagnosed.as_deref(), stderr.as_deref());
+        if is_permanently_unavailable_reason(&reason) {
+            self.exclude(started, &reason)
+        } else {
+            self.fail_retryably(started, reason, is_last_attempt)
+        }
+    }
+
+    /// Diagnoses a failed download's precise reason, swallowing a probe error
+    /// (logged) as undetermined so the probe failing never fails the handling.
+    fn diagnose_failure(&self, video_url: &str) -> Option<String> {
+        match self.video_downloader_repository.diagnose(video_url) {
+            Ok(reason) => reason,
+            Err(e) => {
+                warn!(error = %e, "diagnostic probe failed; treating the failure reason as undetermined");
+                None
+            }
+        }
+    }
+
+    /// Marks a permanently-unavailable video excluded and settles the task
+    /// without error, so no retry is scheduled and it is not dead-lettered.
+    fn exclude(&self, started: Video, reason: &str) -> anyhow::Result<()> {
+        let video_id = started.id.clone();
+        let excluded = started.mark_excluded(self.clock.now());
+        self.video_repository.update(&excluded)?;
+        info!(video_id = %video_id, reason = %reason, "excluding permanently-unavailable video");
+        Ok(())
+    }
+
+    /// Marks the video errored (retrying, or permanently on the last attempt)
+    /// and returns the precise reason so the task queue retries/dead-letters
+    /// it.
+    fn fail_retryably(
+        &self,
+        started: Video,
+        reason: String,
+        is_last_attempt: bool,
+    ) -> anyhow::Result<()> {
         let video_id = started.id.clone();
         self.mark_errored(started, is_last_attempt)?;
-        let error_message =
-            stderr.unwrap_or_else(|| format!("yt-dlp failed to download video {video_id}"));
+        let error_message = if reason.is_empty() {
+            format!("yt-dlp failed to download video {video_id}")
+        } else {
+            reason
+        };
         warn!(video_id = %video_id, error = %error_message, "yt-dlp reported a failed download");
         Err(anyhow::anyhow!(error_message))
     }
