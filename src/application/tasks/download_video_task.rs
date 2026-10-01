@@ -216,6 +216,40 @@ mod tests {
     }
 
     #[test]
+    fn it_should_exclude_a_permanently_unavailable_video_without_dead_lettering_on_the_last_attempt()
+     {
+        let db = TestDatabase::new();
+        let video_repository = Arc::new(SqliteVideoRepository::new(db.connection()));
+        let video = my_video();
+        video_repository.save(&video).unwrap();
+        let task = DownloadVideoTask::new(video_downloader(
+            &db,
+            video_repository.clone(),
+            Arc::new(
+                FakeVideoDownloaderRepository::with_failed_stderr("Video unavailable")
+                    .with_diagnosed_reason(
+                        "It was blocked due to the claimed content by Mediatoon.",
+                    ),
+            ),
+            Arc::new(FakeVideoFileRepository::default()),
+            Arc::new(FakeYoutubeMetadataRepository::default()),
+            Arc::new(SqliteVideoMetadataRepository::new(db.connection())),
+        ));
+
+        let result = run(&task, &payload_for(video.id.as_str()), true);
+
+        assert_eq!(result, Ok(()));
+        assert_eq!(
+            video_repository.list().unwrap(),
+            vec![
+                video
+                    .start_download(fixed_timestamp())
+                    .mark_excluded(fixed_timestamp())
+            ]
+        );
+    }
+
+    #[test]
     fn it_should_exclude_a_video_blocked_by_claimed_content() {
         let db = TestDatabase::new();
         let video_repository = Arc::new(SqliteVideoRepository::new(db.connection()));
