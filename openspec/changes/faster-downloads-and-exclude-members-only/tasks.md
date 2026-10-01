@@ -27,7 +27,7 @@
 ## 6. Hide excluded videos from the video lists
 
 - [x] 6.1 Filter `Excluded` videos out of the playlist video-list and channel video-list read paths (prefer a `status <> 'EXCLUDED'` guard in the backing query — see design.md). Verify with HTTP-layer tests: a playlist and a channel each containing one excluded video plus others return only the others, with HTTP 200.
-- [ ] 6.2 Confirm the home-sections endpoint is unaffected (it already returns only `Downloaded` videos) — verify the existing home tests still pass, adding a case with an excluded video present if one is cheap to express.
+- [x] 6.2 Confirm the home-sections endpoint is unaffected (it already returns only `Downloaded` videos) — verify the existing home tests still pass, adding a case with an excluded video present if one is cheap to express.
 
 ## 7. Verification
 
