@@ -31,6 +31,6 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Run `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings`, and `cargo test --locked`; all pass.
+- [x] 7.1 Run `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings`, and `cargo test --locked`; all pass.
 - [ ] 7.2 Check `web/` for a video `status` union type in `src/api/types.ts`; since excluded videos are filtered server-side the frontend should need no change, but confirm `npm run check` still passes and add `EXCLUDED` to the type only if the type is exhaustive and the suite requires it.
 - [ ] 7.3 Run the relevant `smoke-tests/` for the download path to confirm a normal download still succeeds end-to-end with concurrent fragments enabled, and (if feasible) that a known-blocked video is diagnosed and excluded.
