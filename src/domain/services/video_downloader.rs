@@ -18,6 +18,31 @@ use std::path::Path;
 use std::sync::Arc;
 use tracing::{debug, error, info, warn};
 
+/// Substrings that, found (case-insensitively) in a diagnosed failure reason,
+/// mark a video permanently unavailable — see design.md's token table. This
+/// is an allowlist of *permanent* reasons, never an inverted "everything
+/// except transient" rule, so an unseen `yt-dlp`/YouTube wording is never
+/// silently excluded forever.
+const PERMANENT_UNAVAILABILITY_TOKENS: [&str; 8] = [
+    "members-only",
+    "claimed content",
+    "copyright",
+    "in your country",
+    "private video",
+    "has been removed",
+    "no longer available",
+    "account associated with this video has been terminated",
+];
+
+/// Whether a diagnosed failure `reason` names a block that can never succeed
+/// on a later attempt, so the video should be excluded rather than retried.
+fn is_permanently_unavailable_reason(reason: &str) -> bool {
+    let reason = reason.to_lowercase();
+    PERMANENT_UNAVAILABILITY_TOKENS
+        .iter()
+        .any(|token| reason.contains(token))
+}
+
 /// Downloads one video via `yt-dlp`, transitioning it through in-progress to
 /// downloaded/errored. Container-agnostic: the caller (a task handler)
 /// already resolved the video's owning container's quality and output
@@ -275,5 +300,54 @@ impl VideoDownloader {
         {
             warn!(video_id = %video.id, error = %e, "failed to save video metadata");
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_permanently_unavailable_reason;
+
+    #[test]
+    fn it_should_classify_permanently_unavailable_reasons() {
+        let reasons = [
+            "Join this channel to get access to members-only content like this video, and other exclusive perks.",
+            "It was blocked due to the claimed content by Mediatoon.",
+            "Video unavailable. This video contains content that has been blocked on copyright grounds.",
+            "The uploader has not made this video available in your country.",
+            "Private video. Sign in if you've been granted access to this video.",
+            "This video has been removed by the uploader.",
+            "This video is no longer available.",
+            "This video is not available because the YouTube account associated with this video has been terminated.",
+        ];
+
+        assert_eq!(
+            reasons.map(is_permanently_unavailable_reason),
+            [true, true, true, true, true, true, true, true]
+        );
+    }
+
+    #[test]
+    fn it_should_classify_permanently_unavailable_reasons_case_insensitively() {
+        let reasons = [
+            "JOIN THIS CHANNEL FOR MEMBERS-ONLY CONTENT",
+            "It was blocked due to the CLAIMED CONTENT by X.",
+        ];
+
+        assert_eq!(reasons.map(is_permanently_unavailable_reason), [true, true]);
+    }
+
+    #[test]
+    fn it_should_not_classify_generic_or_transient_reasons() {
+        let reasons = [
+            "Video unavailable",
+            "HTTP Error 403: Forbidden",
+            "Unable to download webpage: The read operation timed out",
+            "HTTP Error 429: Too Many Requests",
+            "Sign in to confirm you're not a bot",
+            "Unable to download video data: fragment 3 not found",
+            "Connection reset by peer",
+        ];
+
+        assert_eq!(reasons.map(is_permanently_unavailable_reason), [false; 7]);
     }
 }
