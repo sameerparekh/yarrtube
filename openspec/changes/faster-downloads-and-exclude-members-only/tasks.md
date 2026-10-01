@@ -11,7 +11,7 @@
 ## 3. Diagnostic probe on failure
 
 - [x] 3.1 Add a `diagnose(&self, video_url: &str) -> anyhow::Result<Option<String>>` method to the `VideoDownloaderRepository` port and implement it in the `yt-dlp` adapter (`src/infrastructure/shared/ytdlp.rs` + `youtube_video_downloader_repository.rs`): a simulate-only invocation with `--simulate --no-warnings --extractor-args "youtube:player_client=android,tv,ios,web_safari"`, returning the precise reason line `yt-dlp` prints, or `None` when none can be determined (probe errors, or only a bare "Video unavailable"). Verify with a `FakeYtDlp`/fake-repo test that a scripted reason is returned and a probe that finds nothing yields `None`.
-- [ ] 3.2 Extend `FakeVideoDownloaderRepository` with a configurable `diagnose` response so downloader tests can drive it without running `yt-dlp`.
+- [x] 3.2 Extend `FakeVideoDownloaderRepository` with a configurable `diagnose` response so downloader tests can drive it without running `yt-dlp`.
 
 ## 4. Classify the reason and apply the non-retrying outcome
 
