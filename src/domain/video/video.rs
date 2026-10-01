@@ -502,6 +502,21 @@ mod tests {
     }
 
     #[test]
+    fn it_should_never_be_due_for_recovery_if_excluded() {
+        let errored_at = DateTime::<Utc>::from_timestamp(100, 0).unwrap();
+        let long_after = errored_at + Duration::days(3650);
+
+        let excluded = Video {
+            status: VideoStatus::Excluded,
+            updated_at: errored_at,
+            last_errored_at: Some(errored_at),
+            ..video()
+        };
+
+        assert!(!excluded.is_due_for_recovery(long_after));
+    }
+
+    #[test]
     fn it_should_not_be_due_for_recovery_if_not_permanently_errored() {
         let updated_at = DateTime::<Utc>::from_timestamp(100, 0).unwrap();
         let later = updated_at + Duration::days(3);
