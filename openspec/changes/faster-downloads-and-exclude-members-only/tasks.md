@@ -5,7 +5,7 @@
 ## 2. `Excluded` status
 
 - [x] 2.1 Add `VideoStatus::Excluded` to `src/domain/video/video_status.rs`, mapping to/from `"EXCLUDED"` in `as_str`/`parse`. Verify with a round-trip unit test mirroring the other variants and that `parse` still rejects unknown strings.
-- [ ] 2.2 Add `Video::mark_excluded(now)` to `src/domain/video/video.rs` (consuming-self: sets `status = Excluded`, `updated_at = now`, leaves `last_errored_at` unchanged). Verify with a unit test asserting the whole transitioned `Video`.
+- [x] 2.2 Add `Video::mark_excluded(now)` to `src/domain/video/video.rs` (consuming-self: sets `status = Excluded`, `updated_at = now`, leaves `last_errored_at` unchanged). Verify with a unit test asserting the whole transitioned `Video`.
 - [ ] 2.3 Add a unit test in `video.rs` asserting `is_due_for_recovery` returns `false` for an `Excluded` video no matter how old `updated_at`/`last_errored_at` are (confirming recovery never picks it up).
 
 ## 3. Diagnostic probe on failure

@@ -114,6 +114,19 @@ impl Video {
         }
     }
 
+    /// Marks a video excluded: a terminal status for a video that can never
+    /// be downloaded (see the `video-download` capability). Deliberately
+    /// leaves `last_errored_at` untouched — recovery keys off `Errored`, and
+    /// `Excluded` is a distinct status outside that predicate, so an excluded
+    /// video is never reset by reconcile recovery.
+    pub fn mark_excluded(self, now: DateTime<Utc>) -> Self {
+        Self {
+            status: VideoStatus::Excluded,
+            updated_at: now,
+            ..self
+        }
+    }
+
     /// Records a thumbnail fetched independently of, and ahead of, the
     /// video's full download — see the `video-thumbnails` capability.
     /// Touches only `thumbnail_filename`/`updated_at`, leaving `status`,
@@ -404,6 +417,23 @@ mod tests {
         assert_eq!(video.quality, None);
         assert_eq!(video.updated_at, now);
         assert_eq!(video.last_errored_at, Some(now));
+    }
+
+    #[test]
+    fn it_should_transition_to_excluded_when_marked_excluded() {
+        let now = DateTime::<Utc>::from_timestamp(100, 0).unwrap();
+        let video = video();
+
+        let excluded = video.clone().mark_excluded(now);
+
+        assert_eq!(
+            excluded,
+            Video {
+                status: VideoStatus::Excluded,
+                updated_at: now,
+                ..video
+            }
+        );
     }
 
     #[test]
