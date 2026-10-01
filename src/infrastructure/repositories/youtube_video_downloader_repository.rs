@@ -43,6 +43,15 @@ pub trait VideoDownloaderRepository: Send + Sync {
         output_dir: &Path,
         existing_folder: Option<&str>,
     ) -> anyhow::Result<Option<FetchedThumbnail>>;
+
+    /// Runs a simulate-only probe (forcing the alternate player clients) to
+    /// reveal the *precise* reason a download failed, since `yt-dlp`'s default
+    /// clients collapse many permanent blocks into a bare "Video unavailable".
+    /// Returns `Ok(Some(reason))` with the reason `yt-dlp` printed,
+    /// `Ok(None)` when none can be determined (clean exit, or only a bare
+    /// "Video unavailable"), and `Err` only for a systemic problem. The probe
+    /// never downloads — it only diagnoses.
+    fn diagnose(&self, video_url: &str) -> anyhow::Result<Option<String>>;
 }
 
 /// Invokes `yt-dlp` at `ytdlp_path`, the same configured path `update-ytdlp`
@@ -96,6 +105,10 @@ impl VideoDownloaderRepository for YtDlpVideoDownloaderRepository {
             output_dir,
             existing_folder,
         )
+    }
+
+    fn diagnose(&self, video_url: &str) -> anyhow::Result<Option<String>> {
+        ytdlp::diagnose(&self.ytdlp_path, video_url)
     }
 }
 
@@ -244,6 +257,10 @@ impl VideoDownloaderRepository for FakeVideoDownloaderRepository {
             Some(result) => result,
             None => Ok(None),
         }
+    }
+
+    fn diagnose(&self, _video_url: &str) -> anyhow::Result<Option<String>> {
+        Ok(None)
     }
 }
 
