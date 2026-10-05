@@ -2,7 +2,8 @@ export type AnnouncementSegment =
   | { kind: 'text'; text: string }
   | { kind: 'link'; label: string; url: string }
 
-const LINK = /\[([^\]]+)\]\(([^)\s]+)\)/g
+// Only http(s) targets become links, so a `javascript:` url stays inert text.
+const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g
 
 /** Splits `text` into plain text and `[label](url)` link segments, in order. */
 export function parseAnnouncementText(text: string): AnnouncementSegment[] {

@@ -19,4 +19,10 @@ describe('parseAnnouncementText', () => {
       { kind: 'text', text: '.' },
     ])
   })
+
+  it('leaves non-http links as literal text', () => {
+    expect(parseAnnouncementText('[click](javascript:alert(1)) [mail](mailto:a@b.c)')).toEqual([
+      { kind: 'text', text: '[click](javascript:alert(1)) [mail](mailto:a@b.c)' },
+    ])
+  })
 })
