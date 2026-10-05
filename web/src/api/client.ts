@@ -12,6 +12,7 @@ import type {
   Video,
   VideoProgress,
 } from './types'
+import { parseAnnouncements } from '@/lib/announcements'
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'DELETE'
@@ -185,5 +186,6 @@ export const ANNOUNCEMENTS_URL =
   'https://raw.githubusercontent.com/sergigp/yarrtube/main/announcements/announcements.json'
 
 export async function fetchAnnouncements(): Promise<Announcement[]> {
-  return []
+  const response = await fetch(ANNOUNCEMENTS_URL)
+  return parseAnnouncements(await response.json())
 }

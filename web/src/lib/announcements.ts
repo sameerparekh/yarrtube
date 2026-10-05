@@ -1,14 +1,14 @@
 import type { Announcement } from '@/api/types'
 
-export function parseAnnouncements(_body: unknown): Announcement[] {
-  return []
+export function parseAnnouncements(body: unknown): Announcement[] {
+  return body as Announcement[]
 }
 
 export function firstUnread(
-  _announcements: readonly Announcement[],
+  announcements: readonly Announcement[],
   _dismissed: ReadonlySet<string>,
 ): Announcement | undefined {
-  return undefined
+  return announcements[0]
 }
 
 export function readDismissedAnnouncements(): string[] {
