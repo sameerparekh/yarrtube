@@ -107,4 +107,14 @@ describe('AnnouncementBar', () => {
 
     expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
   })
+
+  it('skips entries without a string id or text', async () => {
+    renderBar([
+      { text: 'No id' },
+      { id: 'c', text: 7 },
+      anAnnouncement({ id: 'a', text: 'First' }),
+    ])
+
+    expect(await screen.findByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
+  })
 })

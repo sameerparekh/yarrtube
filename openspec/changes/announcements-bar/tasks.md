@@ -12,7 +12,7 @@
 - [x] 2.6 `remembers dismissals across remounts`: drives `writeDismissedAnnouncements`.
 - [x] 2.7 `renders nothing when the fetch fails`: drives the silent error path (non-2xx).
 - [x] 2.8 `renders nothing when the body is not an array`: drives `parseAnnouncements` rejecting non-arrays.
-- [ ] 2.9 `skips entries without a string id or text`: drives `parseAnnouncements` per-entry validation.
+- [x] 2.9 `skips entries without a string id or text`: drives `parseAnnouncements` per-entry validation.
 
 ## 3. Infrastructure adapters (TDD)
 
