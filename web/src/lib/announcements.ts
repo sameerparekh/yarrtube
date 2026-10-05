@@ -1,6 +1,9 @@
 import type { Announcement } from '@/api/types'
 
 export function parseAnnouncements(body: unknown): Announcement[] {
+  if (!Array.isArray(body)) {
+    throw new Error('announcements file is not a JSON array')
+  }
   return body as Announcement[]
 }
 

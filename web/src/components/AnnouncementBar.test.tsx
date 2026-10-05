@@ -101,4 +101,10 @@ describe('AnnouncementBar', () => {
     expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
     expect(screen.queryByText(/boom/)).not.toBeInTheDocument()
   })
+
+  it('renders nothing when the body is not an array', async () => {
+    await renderBarAndSettle({ id: 'a', text: 'First' })
+
+    expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
+  })
 })
