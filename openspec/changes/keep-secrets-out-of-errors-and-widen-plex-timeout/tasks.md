@@ -7,7 +7,7 @@
 
 ## 2. Plex timeout
 
-- [ ] 2.1 Raise `REQUEST_TIMEOUT` in `plex_collection_repository.rs` to 60 s and update its comment; verify `cargo test plex` passes
+- [x] 2.1 Raise `REQUEST_TIMEOUT` in `plex_collection_repository.rs` to 60 s and update its comment; verify `cargo test plex` passes
 
 ## 3. Checks
 
