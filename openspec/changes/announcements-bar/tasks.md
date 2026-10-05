@@ -7,7 +7,7 @@
 - [x] 2.1 `shows the newest unread announcement`: drives the fetch, parsing, `firstUnread` and bar rendering above the header.
 - [x] 2.2 `renders inline links that open in a new tab`: drives `parseAnnouncementText` link segments and `<a target="_blank" rel="noopener noreferrer">`.
 - [x] 2.3 `shows the next announcement after dismissing`: drives the `Dismiss announcement` button and the in-memory dismissed set.
-- [ ] 2.4 `skips announcements dismissed earlier`: drives `readDismissedAnnouncements`.
+- [x] 2.4 `skips announcements dismissed earlier`: drives `readDismissedAnnouncements`.
 - [ ] 2.5 `renders nothing once every announcement is dismissed`: drives the empty state.
 - [ ] 2.6 `remembers dismissals across remounts`: drives `writeDismissedAnnouncements`.
 - [ ] 2.7 `renders nothing when the fetch fails`: drives the silent error path (non-2xx).

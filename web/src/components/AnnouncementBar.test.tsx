@@ -6,6 +6,8 @@ import { ANNOUNCEMENTS_URL } from '@/api/client'
 import type { RouteResponse } from '@/test/helpers'
 import { anAnnouncement, mockApi, renderWithProviders } from '@/test/helpers'
 
+const DISMISSED_KEY = 'yarrtube.dismissedAnnouncements'
+
 function renderBar(announcements: RouteResponse) {
   mockApi({ [`GET ${ANNOUNCEMENTS_URL}`]: announcements })
   return renderWithProviders(<AnnouncementBar />)
@@ -49,5 +51,15 @@ describe('AnnouncementBar', () => {
 
     expect(screen.getByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
     expect(screen.queryByText('Second')).not.toBeInTheDocument()
+  })
+
+  it('skips announcements dismissed earlier', async () => {
+    window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(['b']))
+    renderBar([
+      anAnnouncement({ id: 'b', text: 'Second' }),
+      anAnnouncement({ id: 'a', text: 'First' }),
+    ])
+
+    expect(await screen.findByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
   })
 })

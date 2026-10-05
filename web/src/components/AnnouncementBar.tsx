@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useAnnouncements } from '@/api/queries'
 import { Button } from '@/components/ui/button'
-import { firstUnread } from '@/lib/announcements'
+import { firstUnread, readDismissedAnnouncements } from '@/lib/announcements'
 import { parseAnnouncementText } from '@/lib/announcementText'
 
 /**
@@ -12,7 +12,9 @@ import { parseAnnouncementText } from '@/lib/announcementText'
  */
 export function AnnouncementBar() {
   const { data } = useAnnouncements()
-  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(() => new Set())
+  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(
+    () => new Set(readDismissedAnnouncements()),
+  )
   const announcement = data && firstUnread(data, dismissed)
   if (!announcement) {
     return null
