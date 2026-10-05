@@ -2,8 +2,9 @@
 
 An end-to-end Playwright suite that drives the real Docker image through a
 browser: creating a playlist/channel, downloading a real video via yt-dlp,
-and playing it back. Runs in CI on every PR/push to `main`, and can be run
-locally on demand (e.g. before/after a large refactor).
+and playing it back. Run it locally, e.g. before merging or around a large
+refactor. It doesn't run in CI: GitHub-hosted runners' shared IPs get
+YouTube's "confirm you're not a bot" check, so the workflow is manual-only.
 
 Run it with:
 
