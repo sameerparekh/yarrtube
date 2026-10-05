@@ -43,6 +43,38 @@ To run the binary yourself, set at least `YOUTUBE_API_KEY` and `YTDLP_PATH`
 `target/release/yarrtube serve`. All variables are listed in
 [INSTALLATION.md](INSTALLATION.md#configuration).
 
+## Web UI
+
+The UI in `web/` is a React + Vite single-page app written in TypeScript.
+To iterate on it with hot reload, keep the backend running
+(`scripts/run-local.sh --skip-web-build`) and start Vite's dev server, which
+proxies `/api` and `/media` to `localhost:8080`:
+
+```bash
+cd web
+npm run dev          # dev server with hot reload
+npm run test:watch   # Vitest suite, re-running on change
+npm run check        # typecheck + lint + test, what CI runs
+```
+
+Layout of `web/src/`:
+
+- `api/`: the HTTP layer. Response types mirroring the Rust DTOs
+  (`types.ts`), fetch wrappers (`client.ts`) and react-query hooks
+  (`queries.ts`).
+- `lib/`: pure, unit-tested helpers (formatting, slugs, sidebar ordering,
+  task descriptions).
+- `hooks/`: React hooks (debouncing, the add-dialog lookup flow, video
+  selection, watch-progress reporting).
+- `components/`: the app's components; `components/ui/` holds the shadcn/ui
+  primitives.
+- `test/`: test setup and helpers. `mockApi` stubs `fetch` with a route
+  table, `renderWithProviders` wraps a component in react-query and a memory
+  router, and `aChannel`/`aVideo`/… build API fixtures.
+
+Tests sit next to what they test (`foo.ts` / `foo.test.ts`) and run in jsdom
+against the mocked API, so the suite finishes in seconds.
+
 ## Checks
 
 These are what CI runs:
