@@ -24,4 +24,16 @@ describe('AnnouncementBar', () => {
     expect(await screen.findByText('Second')).toBeInTheDocument()
     expect(screen.queryByText('First')).not.toBeInTheDocument()
   })
+
+  it('renders inline links that open in a new tab', async () => {
+    renderBar([anAnnouncement({ text: 'New release, see [docs](https://example.com/docs) now' })])
+
+    const link = await screen.findByRole('link', { name: 'docs' })
+    expect(link).toHaveAttribute('href', 'https://example.com/docs')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getByRole('region', { name: 'Announcement' })).toHaveTextContent(
+      'New release, see docs now',
+    )
+  })
 })
