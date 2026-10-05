@@ -3,7 +3,7 @@
 A small React + Vite single-page app, written in TypeScript, that browses
 playlists, a playlist's videos, and pending/in-progress tasks. Built with
 `npm run build` and embedded into the `yarrtube` binary at compile time —
-see `DEVELOPMENT.md` at the repo root.
+see [`doc/DEVELOPMENT.md`](../doc/DEVELOPMENT.md).
 
 ```bash
 npm ci
