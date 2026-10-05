@@ -25,4 +25,10 @@ describe('parseAnnouncementText', () => {
       { kind: 'text', text: '[click](javascript:alert(1)) [mail](mailto:a@b.c)' },
     ])
   })
+
+  it('leaves unclosed link syntax as literal text', () => {
+    expect(parseAnnouncementText('See [docs](https://example.com/docs')).toEqual([
+      { kind: 'text', text: 'See [docs](https://example.com/docs' },
+    ])
+  })
 })
