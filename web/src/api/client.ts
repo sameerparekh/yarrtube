@@ -1,4 +1,5 @@
 import type {
+  Announcement,
   ChannelListItem,
   ChannelPreview,
   CreatedChannel,
@@ -177,4 +178,12 @@ export function recordVideoProgress(
 export function beaconVideoProgress(youtubeId: string, progress: VideoProgress): void {
   const body = new Blob([JSON.stringify(progress)], { type: 'application/json' })
   navigator.sendBeacon(`/api/videos/${encodeURIComponent(youtubeId)}/progress`, body)
+}
+
+/** Published on the public repository's `main`, so it can be edited without a release. */
+export const ANNOUNCEMENTS_URL =
+  'https://raw.githubusercontent.com/sergigp/yarrtube/main/announcements/announcements.json'
+
+export async function fetchAnnouncements(): Promise<Announcement[]> {
+  return []
 }
