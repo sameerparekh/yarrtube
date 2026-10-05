@@ -10,7 +10,7 @@
 - [x] 2.4 `skips announcements dismissed earlier`: drives `readDismissedAnnouncements`.
 - [x] 2.5 `renders nothing once every announcement is dismissed`: drives the empty state.
 - [x] 2.6 `remembers dismissals across remounts`: drives `writeDismissedAnnouncements`.
-- [ ] 2.7 `renders nothing when the fetch fails`: drives the silent error path (non-2xx).
+- [x] 2.7 `renders nothing when the fetch fails`: drives the silent error path (non-2xx).
 - [ ] 2.8 `renders nothing when the body is not an array`: drives `parseAnnouncements` rejecting non-arrays.
 - [ ] 2.9 `skips entries without a string id or text`: drives `parseAnnouncements` per-entry validation.
 

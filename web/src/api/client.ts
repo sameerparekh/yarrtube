@@ -187,5 +187,8 @@ export const ANNOUNCEMENTS_URL =
 
 export async function fetchAnnouncements(): Promise<Announcement[]> {
   const response = await fetch(ANNOUNCEMENTS_URL)
+  if (!response.ok) {
+    throw new Error(`announcements request failed with status ${response.status}`)
+  }
   return parseAnnouncements(await response.json())
 }

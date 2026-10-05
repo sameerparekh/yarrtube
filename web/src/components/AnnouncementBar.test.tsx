@@ -13,6 +13,12 @@ function renderBar(announcements: RouteResponse) {
   return renderWithProviders(<AnnouncementBar />)
 }
 
+/** Renders the bar and waits until the announcements request has settled. */
+async function renderBarAndSettle(announcements: RouteResponse) {
+  const { queryClient } = renderBar(announcements)
+  await waitFor(() => expect(queryClient.isFetching()).toBe(0))
+}
+
 describe('AnnouncementBar', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -65,16 +71,12 @@ describe('AnnouncementBar', () => {
 
   it('renders nothing once every announcement is dismissed', async () => {
     window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(['a', 'b']))
-    const fetchMock = mockApi({
-      [`GET ${ANNOUNCEMENTS_URL}`]: [
-        anAnnouncement({ id: 'b', text: 'Second' }),
-        anAnnouncement({ id: 'a', text: 'First' }),
-      ],
-    })
-    const { queryClient } = renderWithProviders(<AnnouncementBar />)
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
-    await waitFor(() => expect(queryClient.isFetching()).toBe(0))
+    await renderBarAndSettle([
+      anAnnouncement({ id: 'b', text: 'Second' }),
+      anAnnouncement({ id: 'a', text: 'First' }),
+    ])
+
     expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
   })
 
@@ -91,5 +93,12 @@ describe('AnnouncementBar', () => {
     renderBar(announcements)
 
     expect(await screen.findByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
+  })
+
+  it('renders nothing when the fetch fails', async () => {
+    await renderBarAndSettle({ status: 500, error: 'boom' })
+
+    expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/boom/)).not.toBeInTheDocument()
   })
 })
