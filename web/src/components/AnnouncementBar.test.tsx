@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { AnnouncementBar } from './AnnouncementBar'
 import { ANNOUNCEMENTS_URL } from '@/api/client'
 import type { RouteResponse } from '@/test/helpers'
@@ -35,5 +36,18 @@ describe('AnnouncementBar', () => {
     expect(screen.getByRole('region', { name: 'Announcement' })).toHaveTextContent(
       'New release, see docs now',
     )
+  })
+
+  it('shows the next announcement after dismissing', async () => {
+    const user = userEvent.setup()
+    renderBar([
+      anAnnouncement({ id: 'b', text: 'Second' }),
+      anAnnouncement({ id: 'a', text: 'First' }),
+    ])
+
+    await user.click(await screen.findByRole('button', { name: 'Dismiss announcement' }))
+
+    expect(screen.getByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
+    expect(screen.queryByText('Second')).not.toBeInTheDocument()
   })
 })

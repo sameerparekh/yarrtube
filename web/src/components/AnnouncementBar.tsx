@@ -1,4 +1,7 @@
+import { useState } from 'react'
+import { X } from 'lucide-react'
 import { useAnnouncements } from '@/api/queries'
+import { Button } from '@/components/ui/button'
 import { firstUnread } from '@/lib/announcements'
 import { parseAnnouncementText } from '@/lib/announcementText'
 
@@ -9,7 +12,8 @@ import { parseAnnouncementText } from '@/lib/announcementText'
  */
 export function AnnouncementBar() {
   const { data } = useAnnouncements()
-  const announcement = data && firstUnread(data, new Set())
+  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(() => new Set())
+  const announcement = data && firstUnread(data, dismissed)
   if (!announcement) {
     return null
   }
@@ -37,6 +41,15 @@ export function AnnouncementBar() {
           ),
         )}
       </p>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7 shrink-0"
+        aria-label="Dismiss announcement"
+        onClick={() => setDismissed(new Set(dismissed).add(announcement.id))}
+      >
+        <X className="size-4" />
+      </Button>
     </div>
   )
 }

@@ -6,9 +6,9 @@ export function parseAnnouncements(body: unknown): Announcement[] {
 
 export function firstUnread(
   announcements: readonly Announcement[],
-  _dismissed: ReadonlySet<string>,
+  dismissed: ReadonlySet<string>,
 ): Announcement | undefined {
-  return announcements[0]
+  return announcements.find((announcement) => !dismissed.has(announcement.id))
 }
 
 export function readDismissedAnnouncements(): string[] {
