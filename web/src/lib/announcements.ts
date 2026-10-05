@@ -17,4 +17,6 @@ export function readDismissedAnnouncements(): string[] {
   return JSON.parse(window.localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[]
 }
 
-export function writeDismissedAnnouncements(_ids: readonly string[]): void {}
+export function writeDismissedAnnouncements(ids: readonly string[]): void {
+  window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(ids))
+}

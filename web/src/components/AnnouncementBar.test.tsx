@@ -77,4 +77,19 @@ describe('AnnouncementBar', () => {
     await waitFor(() => expect(queryClient.isFetching()).toBe(0))
     expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
   })
+
+  it('remembers dismissals across remounts', async () => {
+    const user = userEvent.setup()
+    const announcements = [
+      anAnnouncement({ id: 'b', text: 'Second' }),
+      anAnnouncement({ id: 'a', text: 'First' }),
+    ]
+    const { unmount } = renderBar(announcements)
+    await user.click(await screen.findByRole('button', { name: 'Dismiss announcement' }))
+    unmount()
+
+    renderBar(announcements)
+
+    expect(await screen.findByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
+  })
 })

@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useAnnouncements } from '@/api/queries'
 import { Button } from '@/components/ui/button'
-import { firstUnread, readDismissedAnnouncements } from '@/lib/announcements'
+import {
+  firstUnread,
+  readDismissedAnnouncements,
+  writeDismissedAnnouncements,
+} from '@/lib/announcements'
 import { parseAnnouncementText } from '@/lib/announcementText'
 
 /**
@@ -18,6 +22,12 @@ export function AnnouncementBar() {
   const announcement = data && firstUnread(data, dismissed)
   if (!announcement) {
     return null
+  }
+
+  const dismiss = () => {
+    const next = new Set(dismissed).add(announcement.id)
+    setDismissed(next)
+    writeDismissedAnnouncements([...next])
   }
 
   return (
@@ -48,7 +58,7 @@ export function AnnouncementBar() {
         size="icon"
         className="size-7 shrink-0"
         aria-label="Dismiss announcement"
-        onClick={() => setDismissed(new Set(dismissed).add(announcement.id))}
+        onClick={dismiss}
       >
         <X className="size-4" />
       </Button>
