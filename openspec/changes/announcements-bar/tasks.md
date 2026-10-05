@@ -16,7 +16,7 @@
 
 ## 3. Infrastructure adapters (TDD)
 
-- [ ] 3.1 `announcementText.test.ts`: `returns plain text as a single text segment`.
+- [x] 3.1 `announcementText.test.ts`: `returns plain text as a single text segment`.
 - [ ] 3.2 `announcementText.test.ts`: `splits multiple links from the surrounding text`.
 - [ ] 3.3 `announcementText.test.ts`: `leaves non-http links as literal text`.
 - [ ] 3.4 `announcementText.test.ts`: `leaves unclosed link syntax as literal text`.
