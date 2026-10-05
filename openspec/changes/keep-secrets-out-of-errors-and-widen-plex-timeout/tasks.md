@@ -11,5 +11,5 @@
 
 ## 3. Checks
 
-- [ ] 3.1 Run `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings` and `cargo test --locked`; all must pass
+- [x] 3.1 Run `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings` and `cargo test --locked`; all must pass
 - [ ] 3.2 After deploying: confirm in `yarrlogs` that playlist/channel reconciles succeed (the header is accepted), and that no logged URL contains `key=`
