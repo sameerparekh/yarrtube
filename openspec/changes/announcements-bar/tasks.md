@@ -25,7 +25,7 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Write `smoke-tests/tests/announcements.spec.js` covering both scenarios of the `Announcements Bar Coverage` requirement, with the GitHub URL stubbed through `page.route`. Done when it passes under `scripts/run-smoke-tests.sh`.
-- [ ] 4.2 Run `npm run check` (in `web/`), `cargo test --locked`, `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings`. Done when all pass.
-- [ ] 4.3 Run `scripts/run-smoke-tests.sh` (full suite) and confirm every existing smoke test still passes with the bar in place.
-- [ ] 4.4 Run `scripts/run-local.sh`, temporarily point the fetch at a local fixture or a branch file with one linked announcement, and check the bar's look on desktop and mobile widths, the link, dismissal and reload.
+- [x] 4.1 Write `smoke-tests/tests/announcements.spec.js` covering both scenarios of the `Announcements Bar Coverage` requirement, with the GitHub URL stubbed through `page.route`. Done when it passes under `scripts/run-smoke-tests.sh`.
+- [x] 4.2 Run `npm run check` (in `web/`), `cargo test --locked`, `cargo fmt --all -- --check`, `cargo clippy --all-targets --all-features --locked -- -D warnings`. Done when all pass.
+- [x] 4.3 Run `scripts/run-smoke-tests.sh` (full suite) and confirm every existing smoke test still passes with the bar in place.
+- [x] 4.4 Run `scripts/run-local.sh`, temporarily point the fetch at a local fixture or a branch file with one linked announcement, and check the bar's look on desktop and mobile widths, the link, dismissal and reload.
