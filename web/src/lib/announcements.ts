@@ -18,7 +18,8 @@ const DISMISSED_KEY = 'yarrtube.dismissedAnnouncements'
 
 export function readDismissedAnnouncements(): string[] {
   try {
-    return JSON.parse(window.localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[]
+    const stored: unknown = JSON.parse(window.localStorage.getItem(DISMISSED_KEY) ?? '[]')
+    return Array.isArray(stored) ? stored.filter((id) => typeof id === 'string') : []
   } catch {
     // Unreadable storage (private windows, blocked site data) means nothing
     // dismissed yet, never an error.

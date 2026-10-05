@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { readDismissedAnnouncements, writeDismissedAnnouncements } from './announcements'
 
 describe('dismissed announcements storage', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+  })
+
   it('reads no dismissed ids and writes without throwing when storage is unavailable', () => {
     const original = Object.getOwnPropertyDescriptor(window, 'localStorage')
     const denied = () => {
@@ -18,5 +22,16 @@ describe('dismissed announcements storage', () => {
     } finally {
       Object.defineProperty(window, 'localStorage', original!)
     }
+  })
+
+  it('reads no dismissed ids when the stored value is corrupt', () => {
+    window.localStorage.setItem('yarrtube.dismissedAnnouncements', '{"a":1}')
+    expect(readDismissedAnnouncements()).toEqual([])
+
+    window.localStorage.setItem('yarrtube.dismissedAnnouncements', '["a",2]')
+    expect(readDismissedAnnouncements()).toEqual(['a'])
+
+    window.localStorage.setItem('yarrtube.dismissedAnnouncements', 'not json')
+    expect(readDismissedAnnouncements()).toEqual([])
   })
 })

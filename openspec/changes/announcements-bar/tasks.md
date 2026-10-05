@@ -21,7 +21,7 @@
 - [x] 3.3 `announcementText.test.ts`: `leaves non-http links as literal text`.
 - [x] 3.4 `announcementText.test.ts`: `leaves unclosed link syntax as literal text`.
 - [x] 3.5 `announcements.test.ts` (localStorage adapter): `reads no dismissed ids and writes without throwing when storage is unavailable`.
-- [ ] 3.6 `announcements.test.ts` (localStorage adapter): `reads no dismissed ids when the stored value is corrupt`.
+- [x] 3.6 `announcements.test.ts` (localStorage adapter): `reads no dismissed ids when the stored value is corrupt`.
 
 ## 4. Verification
 
