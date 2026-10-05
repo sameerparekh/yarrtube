@@ -17,11 +17,21 @@ export function firstUnread(
 const DISMISSED_KEY = 'yarrtube.dismissedAnnouncements'
 
 export function readDismissedAnnouncements(): string[] {
-  return JSON.parse(window.localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[]
+  try {
+    return JSON.parse(window.localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[]
+  } catch {
+    // Unreadable storage (private windows, blocked site data) means nothing
+    // dismissed yet, never an error.
+    return []
+  }
 }
 
 export function writeDismissedAnnouncements(ids: readonly string[]): void {
-  window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(ids))
+  try {
+    window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(ids))
+  } catch {
+    // Not remembered; the bar still advances for this session.
+  }
 }
 
 function isAnnouncement(entry: unknown): entry is Announcement {
