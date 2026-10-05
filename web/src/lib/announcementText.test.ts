@@ -7,4 +7,16 @@ describe('parseAnnouncementText', () => {
       { kind: 'text', text: 'Plex integration landed.' },
     ])
   })
+
+  it('splits multiple links from the surrounding text', () => {
+    expect(
+      parseAnnouncementText('See [notes](https://a.example/n) and [docs](http://b.example/d).'),
+    ).toEqual([
+      { kind: 'text', text: 'See ' },
+      { kind: 'link', label: 'notes', url: 'https://a.example/n' },
+      { kind: 'text', text: ' and ' },
+      { kind: 'link', label: 'docs', url: 'http://b.example/d' },
+      { kind: 'text', text: '.' },
+    ])
+  })
 })
