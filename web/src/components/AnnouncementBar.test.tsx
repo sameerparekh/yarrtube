@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AnnouncementBar } from './AnnouncementBar'
 import { ANNOUNCEMENTS_URL } from '@/api/client'
@@ -61,5 +61,20 @@ describe('AnnouncementBar', () => {
     ])
 
     expect(await screen.findByRole('region', { name: 'Announcement' })).toHaveTextContent('First')
+  })
+
+  it('renders nothing once every announcement is dismissed', async () => {
+    window.localStorage.setItem(DISMISSED_KEY, JSON.stringify(['a', 'b']))
+    const fetchMock = mockApi({
+      [`GET ${ANNOUNCEMENTS_URL}`]: [
+        anAnnouncement({ id: 'b', text: 'Second' }),
+        anAnnouncement({ id: 'a', text: 'First' }),
+      ],
+    })
+    const { queryClient } = renderWithProviders(<AnnouncementBar />)
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0))
+    expect(screen.queryByRole('region', { name: 'Announcement' })).not.toBeInTheDocument()
   })
 })
