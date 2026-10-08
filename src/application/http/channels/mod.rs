@@ -949,6 +949,32 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_fail_to_update_an_unknown_channel() {
+        let db = TestDatabase::new();
+        let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
+        channel_repository.insert(&channel("@somechannel")).unwrap();
+        let channel_updater = ChannelUpdater::new(channel_repository.clone());
+
+        let request = UpdateChannelRequest {
+            quality: Some("low".to_string()),
+            ..update_request()
+        };
+        let response = update(channel_updater, "@missing", request).await;
+
+        assert_eq!(
+            response,
+            Err(ApiError::new(
+                StatusCode::NOT_FOUND,
+                "channel @missing not found"
+            ))
+        );
+        assert_eq!(
+            channel_repository.list().unwrap(),
+            vec![channel("@somechannel")]
+        );
+    }
+
+    #[tokio::test]
     async fn it_should_list_no_channels() {
         let db = TestDatabase::new();
         let channel_view_searcher = ChannelViewSearcher::new(
