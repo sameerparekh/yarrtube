@@ -40,7 +40,7 @@
 - [x] 2.18 `ChannelDetail` "edits the channel's settings from its page header menu": "Edit settings" item, PATCH `{quality}` routed, no reconcile
 - [x] 2.19 `ChannelDetail` "syncs the channel after its video limit changes": PATCH then POST reconcile
 - [x] 2.20 `ChannelDetail` "alerts when the sync after saving fails"
-- [ ] 2.21 `PlaylistDetail` "offers no Edit settings item"
+- [x] 2.21 `PlaylistDetail` "offers no Edit settings item"
 
 ## 3. Infrastructure adapters (TDD)
 

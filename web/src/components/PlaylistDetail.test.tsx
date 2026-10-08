@@ -3,7 +3,13 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { PlaylistDetail } from './PlaylistDetail'
-import { aPlaylist, aVideo, mockApi, renderWithProviders, type Routes as ApiRoutes } from '@/test/helpers'
+import {
+  aPlaylist,
+  aVideo,
+  mockApi,
+  renderWithProviders,
+  type Routes as ApiRoutes,
+} from '@/test/helpers'
 
 function renderPlaylist(routes: ApiRoutes, route: string) {
   mockApi(routes)
@@ -60,9 +66,7 @@ describe('PlaylistDetail', () => {
       '/playlists/PL1',
     )
 
-    expect(
-      await screen.findByText('No videos recorded for this playlist yet.'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('No videos recorded for this playlist yet.')).toBeInTheDocument()
     expect(await screen.findByText('No video selected.')).toBeInTheDocument()
   })
 
@@ -129,7 +133,7 @@ describe('PlaylistDetail', () => {
     expect(remove).toHaveBeenCalledOnce()
   })
 
-  it("alerts and leaves the playlist as it was when changing its home setting fails", async () => {
+  it('alerts and leaves the playlist as it was when changing its home setting fails', async () => {
     const alert = vi.spyOn(window, 'alert').mockImplementation(() => {})
     renderPlaylist(
       {
@@ -183,5 +187,21 @@ describe('PlaylistDetail', () => {
     expect(await screen.findByRole('heading', { name: 'Second Video' })).toBeInTheDocument()
     expect(document.querySelector('video')?.playbackRate).toBe(1)
     expect(screen.getByRole('button', { name: 'Playback speed' })).toHaveTextContent('1x')
+  })
+
+  it('offers no Edit settings item', async () => {
+    renderPlaylist(
+      {
+        'GET /api/playlists': [aPlaylist({ id: 'PL1', name: 'The Playlist' })],
+        'GET /api/playlists/PL1/videos': [],
+      },
+      '/playlists/PL1',
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'More actions for The Playlist' }))
+
+    expect(await screen.findByRole('menuitem', { name: 'Delete' })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: 'Edit settings' })).not.toBeInTheDocument()
   })
 })
