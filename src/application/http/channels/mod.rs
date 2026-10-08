@@ -89,7 +89,9 @@ pub async fn update_channel(
     let id = ChannelHandle::new(handle)?;
     let quality = request.quality.map(Quality::new).transpose()?;
     let video_limit = request.video_limit.map(VideoLimit::new).transpose()?;
-    let _ = NOTHING_TO_UPDATE;
+    if quality.is_none() && video_limit.is_none() {
+        return Err(ApiError::bad_request(NOTHING_TO_UPDATE));
+    }
 
     match run_blocking(move || channel_updater.update_settings(id, quality, video_limit)).await? {
         Ok(channel) => Ok(Json(ChannelResponse::from(channel))),
@@ -975,6 +977,13 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_fail_to_update_if_nothing_to_update() {
+        let response = update(any_channel_updater(), "@somechannel", update_request()).await;
+
+        assert_eq!(response, Err(ApiError::bad_request(NOTHING_TO_UPDATE)));
+    }
+
+    #[tokio::test]
     async fn it_should_list_no_channels() {
         let db = TestDatabase::new();
         let channel_view_searcher = ChannelViewSearcher::new(
@@ -1475,6 +1484,10 @@ mod tests {
             Arc::new(FakeChannelAvatarRepository::default()),
             unused_event_publisher(),
         )
+    }
+
+    fn any_channel_updater() -> ChannelUpdater {
+        ChannelUpdater::new(Arc::new(SqliteChannelRepository::new(unused_connection())))
     }
 
     /// Builds a reconciler around the repositories a test seeds and asserts;

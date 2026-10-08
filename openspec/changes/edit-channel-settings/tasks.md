@@ -25,7 +25,7 @@
 - [x] 2.3 `it_should_update_both_settings_of_a_channel`: both stored and returned
 - [x] 2.4 `it_should_leave_a_channel_unchanged_if_settings_already_set`: 200, storage unchanged
 - [x] 2.5 `it_should_fail_to_update_an_unknown_channel`: 404 `channel <handle> not found`, nothing stored
-- [ ] 2.6 `it_should_fail_to_update_if_nothing_to_update`: `{}` → 400 `NOTHING_TO_UPDATE`
+- [x] 2.6 `it_should_fail_to_update_if_nothing_to_update`: `{}` → 400 `NOTHING_TO_UPDATE`
 - [ ] 2.7 `it_should_fail_to_update_if_invalid_quality_provided`: 400 with the `Quality` validation message, storage unchanged
 - [ ] 2.8 `it_should_fail_to_update_if_invalid_video_limit_provided`: 1001 → 400 with the `VideoLimit` range message, storage unchanged
 - [ ] 2.9 `it_should_fail_to_update_if_invalid_handle_provided`: 400 with the `ChannelHandle` message
