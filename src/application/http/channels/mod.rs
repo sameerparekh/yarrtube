@@ -88,9 +88,10 @@ pub async fn update_channel(
 ) -> Result<Json<ChannelResponse>, ApiError> {
     let id = ChannelHandle::new(handle)?;
     let quality = request.quality.map(Quality::new).transpose()?;
+    let video_limit = request.video_limit.map(VideoLimit::new).transpose()?;
     let _ = NOTHING_TO_UPDATE;
 
-    match run_blocking(move || channel_updater.update_settings(id, quality, None)).await? {
+    match run_blocking(move || channel_updater.update_settings(id, quality, video_limit)).await? {
         Ok(channel) => Ok(Json(ChannelResponse::from(channel))),
         Err(e @ UpdateChannelError::NotFound(_)) => Err(ApiError::new(StatusCode::NOT_FOUND, e)),
         Err(e @ UpdateChannelError::Repository(_)) => Err(ApiError::internal(e)),
@@ -867,6 +868,32 @@ mod tests {
         assert_eq!(
             channel_repository.list().unwrap(),
             vec![channel("@somechannel").with_quality(Quality::Low)]
+        );
+    }
+
+    #[tokio::test]
+    async fn it_should_update_a_channels_video_limit() {
+        let db = TestDatabase::new();
+        let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
+        channel_repository.insert(&channel("@somechannel")).unwrap();
+        let channel_updater = ChannelUpdater::new(channel_repository.clone());
+
+        let request = UpdateChannelRequest {
+            video_limit: Some(20),
+            ..update_request()
+        };
+        let response = update(channel_updater, "@somechannel", request).await;
+
+        assert_eq!(
+            response,
+            Ok(ChannelResponse {
+                video_limit: 20,
+                ..some_channel_response()
+            })
+        );
+        assert_eq!(
+            channel_repository.list().unwrap(),
+            vec![channel("@somechannel").with_video_limit(VideoLimit::new(20).unwrap())]
         );
     }
 

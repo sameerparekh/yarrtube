@@ -32,13 +32,9 @@ impl ChannelUpdaterApi for ChannelUpdater {
         &self,
         id: ChannelHandle,
         quality: Option<Quality>,
-        _video_limit: Option<VideoLimit>,
+        video_limit: Option<VideoLimit>,
     ) -> Result<Channel, UpdateChannelError> {
-        let channel = self.find_channel(&id)?;
-        let channel = match quality {
-            Some(quality) => channel.with_quality(quality),
-            None => channel,
-        };
+        let channel = Self::apply_settings(self.find_channel(&id)?, quality, video_limit);
         self.update_channel(&channel)?;
         Ok(channel)
     }
@@ -50,6 +46,21 @@ impl ChannelUpdater {
             Ok(Some(channel)) => Ok(channel),
             Ok(None) => Err(UpdateChannelError::NotFound(id.clone())),
             Err(e) => Err(UpdateChannelError::Repository(e)),
+        }
+    }
+
+    fn apply_settings(
+        channel: Channel,
+        quality: Option<Quality>,
+        video_limit: Option<VideoLimit>,
+    ) -> Channel {
+        let channel = match quality {
+            Some(quality) => channel.with_quality(quality),
+            None => channel,
+        };
+        match video_limit {
+            Some(video_limit) => channel.with_video_limit(video_limit),
+            None => channel,
         }
     }
 
