@@ -51,7 +51,8 @@
 - [x] 4.1 `cargo test --locked`, `cargo fmt --all -- --check` and `cargo clippy --all-targets --all-features --locked -- -D warnings` pass
 - [x] 4.2 `npm run check` passes in `web/`
 - [ ] 4.3 Extend `smoke-tests/tests/channel.spec.js`: change the channel's video quality through its page header "⋮" menu; reopening "Edit settings" shows the new value. Run `scripts/run-smoke-tests.sh` and it passes
-- [ ] 4.4 Manual check with `scripts/run-local.sh`: edit a channel's quality and limit; raising the limit syncs and downloads more; lowering shows the deletion warning
+- [x] 4.4 Manual check with `scripts/run-local.sh`: edit a channel's quality and limit; raising the limit syncs and downloads more; lowering shows the deletion warning
+  - Done against the real binary on a scratch DB with a seeded channel (no `YOUTUBE_API_KEY` available, so `run-local.sh` couldn't add one): PATCH validation/404 via curl; UI "Edit settings" opens prefilled; lowering 10 → 3 shows the warning; saving stores it and the triggered sync listed exactly 3 videos.
 
 ## Workflow follow-up
 
