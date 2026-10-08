@@ -9,13 +9,17 @@ export interface ChannelSettingsForm {
 
 /** The settings the form changes from the channel's current ones; `{}` when none. */
 export function channelSettingsChanges(
-  _current: Pick<ChannelListItem, 'quality' | 'video_limit'>,
-  _form: ChannelSettingsForm,
+  current: Pick<ChannelListItem, 'quality' | 'video_limit'>,
+  form: ChannelSettingsForm,
 ): UpdateChannelRequest {
-  return {}
+  const videoLimit = Number(form.video_limit)
+  return {
+    ...(form.quality !== current.quality && { quality: form.quality }),
+    ...(videoLimit !== current.video_limit && { video_limit: videoLimit }),
+  }
 }
 
 /** Whether the entered video limit is below the channel's current one. */
-export function lowersVideoLimit(_currentLimit: number, _entered: string): boolean {
-  return false
+export function lowersVideoLimit(currentLimit: number, entered: string): boolean {
+  return entered.trim() !== '' && Number(entered) < currentLimit
 }
