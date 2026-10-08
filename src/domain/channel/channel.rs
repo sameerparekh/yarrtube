@@ -39,4 +39,12 @@ impl Channel {
             created_at,
         }
     }
+
+    pub fn with_quality(self, _quality: Quality) -> Self {
+        self
+    }
+
+    pub fn with_video_limit(self, _video_limit: VideoLimit) -> Self {
+        self
+    }
 }

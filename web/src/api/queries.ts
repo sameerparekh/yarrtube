@@ -12,6 +12,7 @@ import {
   previewChannel,
   previewPlaylist,
   updatePlaylist,
+  type UpdateChannelRequest,
 } from './client'
 import type {
   Announcement,
@@ -199,6 +200,17 @@ export function useSetPlaylistExcludedFromHome(): (id: string, excluded: boolean
     },
     [invalidateLibraryAndHome],
   )
+}
+
+/**
+ * Returns a function that changes a channel's settings, then refetches the
+ * channel and playlist lists.
+ */
+export function useUpdateChannelSettings(): (
+  handle: string,
+  changes: UpdateChannelRequest,
+) => Promise<void> {
+  return useCallback(async () => {}, [])
 }
 
 /** Refetches the channel and playlist lists (and their video lists) and the home videos. */

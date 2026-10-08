@@ -25,6 +25,8 @@ interface EntryActionsMenuProps {
   /** Playlists only: the current setting; undefined hides the home item. */
   excludedFromHome?: boolean | undefined
   onSetExcludedFromHome?: ((excluded: boolean) => Promise<void>) | undefined
+  /** Channels' page header only: opens the edit channel dialog, which the caller owns. */
+  onEditRequest?: (() => void) | undefined
   /** Asks for confirmation; the caller owns the confirm dialog. */
   onDeleteRequest: () => void
   className?: string
@@ -43,6 +45,7 @@ export function EntryActionsMenu({
   onMarkWatched,
   excludedFromHome,
   onSetExcludedFromHome,
+  onEditRequest: _onEditRequest,
   onDeleteRequest,
   className,
 }: EntryActionsMenuProps) {

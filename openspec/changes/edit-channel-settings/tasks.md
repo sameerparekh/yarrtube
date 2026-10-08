@@ -1,6 +1,6 @@
 ## 1. Walking skeleton
 
-- [ ] 1.1 Create every file, type and signature from design.md (## Files, ## Types & Signatures), wired end-to-end with trivial bodies:
+- [x] 1.1 Create every file, type and signature from design.md (## Files, ## Types & Signatures), wired end-to-end with trivial bodies:
   - Backend:
     - `Channel::with_quality` / `with_video_limit` returning `self` unchanged
     - `ChannelView.quality` / `video_limit` filled by `ChannelViewSearcher`

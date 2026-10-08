@@ -11,6 +11,7 @@ use rusqlite::{OptionalExtension, params};
 pub trait ChannelRepository: Send + Sync {
     fn find(&self, id: &ChannelHandle) -> anyhow::Result<Option<Channel>>;
     fn insert(&self, channel: &Channel) -> anyhow::Result<()>;
+    fn update(&self, channel: &Channel) -> anyhow::Result<()>;
     fn delete(&self, id: &ChannelHandle) -> anyhow::Result<()>;
     fn list(&self) -> anyhow::Result<Vec<Channel>>;
 }
@@ -81,6 +82,10 @@ impl ChannelRepository for SqliteChannelRepository {
         )
         .inspect_err(|e| tracing::error!(channel_id = %channel.id, error = %e, "failed to insert channel"))
         .context("failed to insert channel")?;
+        Ok(())
+    }
+
+    fn update(&self, _channel: &Channel) -> anyhow::Result<()> {
         Ok(())
     }
 

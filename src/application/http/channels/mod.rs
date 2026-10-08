@@ -5,14 +5,15 @@ use super::error::ApiError;
 use super::validation::{MISSING_QUALITY, required};
 use super::videos::update_watch_state_error;
 use crate::domain::channel::{
-    ChannelHandle, CreateChannelError, DeleteChannelError, PreviewChannelError, VideoLimit,
+    ChannelHandle, CreateChannelError, DeleteChannelError, PreviewChannelError, UpdateChannelError,
+    VideoLimit,
 };
 use crate::domain::playlist::PlaylistPath;
 use crate::domain::services::{
     ChannelCreator, ChannelCreatorApi, ChannelDeleter, ChannelDeleterApi, ChannelPreviewer,
-    ChannelPreviewerApi, ChannelVideoReconciler, ChannelVideoReconcilerApi, ChannelViewSearcher,
-    ChannelViewSearcherApi, CreateChannelOutcome, VideoWatchStateUpdater,
-    VideoWatchStateUpdaterApi,
+    ChannelPreviewerApi, ChannelUpdater, ChannelUpdaterApi, ChannelVideoReconciler,
+    ChannelVideoReconcilerApi, ChannelViewSearcher, ChannelViewSearcherApi, CreateChannelOutcome,
+    VideoWatchStateUpdater, VideoWatchStateUpdaterApi,
 };
 use crate::domain::shared::Quality;
 use axum::Json;
@@ -20,11 +21,12 @@ use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use dto::{
     ChannelListItemResponse, ChannelPreviewResponse, ChannelResponse, CreateChannelRequest,
-    PreviewChannelQuery,
+    PreviewChannelQuery, UpdateChannelRequest,
 };
 
 const MISSING_VIDEO_LIMIT: &str = "Video limit must be a positive integer (missing)";
 const MISSING_PATH: &str = "Channel path must not be empty";
+const NOTHING_TO_UPDATE: &str = "Request must change the quality or the video limit";
 
 pub async fn create_channel(
     State(channel_creator): State<ChannelCreator>,
@@ -76,6 +78,21 @@ pub async fn delete_channel(
         Ok(()) => Ok(StatusCode::NO_CONTENT),
         Err(e @ DeleteChannelError::NotFound(_)) => Err(ApiError::bad_request(e)),
         Err(e @ DeleteChannelError::Repository(_)) => Err(ApiError::internal(e)),
+    }
+}
+
+pub async fn update_channel(
+    State(channel_updater): State<ChannelUpdater>,
+    Path(handle): Path<String>,
+    Json(request): Json<UpdateChannelRequest>,
+) -> Result<Json<ChannelResponse>, ApiError> {
+    let id = ChannelHandle::new(handle)?;
+    let _ = (request, NOTHING_TO_UPDATE);
+
+    match run_blocking(move || channel_updater.update_settings(id, None, None)).await? {
+        Ok(channel) => Ok(Json(ChannelResponse::from(channel))),
+        Err(e @ UpdateChannelError::NotFound(_)) => Err(ApiError::new(StatusCode::NOT_FOUND, e)),
+        Err(e @ UpdateChannelError::Repository(_)) => Err(ApiError::internal(e)),
     }
 }
 
@@ -1632,6 +1649,8 @@ mod tests {
             id: "@somechannel".to_string(),
             name: "Some Channel".to_string(),
             path: "creators/somechannel".to_string(),
+            quality: "high".to_string(),
+            video_limit: 10,
             avatar_filename: None,
             unwatched_count: 0,
         }
