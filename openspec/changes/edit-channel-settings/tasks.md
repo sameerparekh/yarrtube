@@ -27,7 +27,7 @@
 - [x] 2.5 `it_should_fail_to_update_an_unknown_channel`: 404 `channel <handle> not found`, nothing stored
 - [x] 2.6 `it_should_fail_to_update_if_nothing_to_update`: `{}` → 400 `NOTHING_TO_UPDATE`
 - [x] 2.7 `it_should_fail_to_update_if_invalid_quality_provided`: 400 with the `Quality` validation message, storage unchanged
-- [ ] 2.8 `it_should_fail_to_update_if_invalid_video_limit_provided`: 1001 → 400 with the `VideoLimit` range message, storage unchanged
+- [x] 2.8 `it_should_fail_to_update_if_invalid_video_limit_provided`: 1001 → 400 with the `VideoLimit` range message, storage unchanged
 - [ ] 2.9 `it_should_fail_to_update_if_invalid_handle_provided`: 400 with the `ChannelHandle` message
 - [ ] 2.10 `it_should_list_channels_with_their_quality_and_video_limit`: list response carries each channel's quality and limit
 - [ ] 2.11 `lib/channelSettings` unit tests: `channelSettingsChanges` returns only changed fields or `{}`; `lowersVideoLimit` true only below the current limit

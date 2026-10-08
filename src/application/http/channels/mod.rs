@@ -1000,6 +1000,22 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_fail_to_update_if_invalid_video_limit_provided() {
+        let request = UpdateChannelRequest {
+            video_limit: Some(1001),
+            ..update_request()
+        };
+        let response = update(any_channel_updater(), "@somechannel", request).await;
+
+        assert_eq!(
+            response,
+            Err(ApiError::bad_request(
+                "Video limit must be between 1 and 1000 (got 1001)"
+            ))
+        );
+    }
+
+    #[tokio::test]
     async fn it_should_list_no_channels() {
         let db = TestDatabase::new();
         let channel_view_searcher = ChannelViewSearcher::new(
