@@ -23,6 +23,7 @@ import { VideoDetail } from './VideoDetail'
 import { VideoListPane } from './VideoListPane'
 import { DetailHeader } from './DetailHeader'
 import { EditChannelDialog } from './EditChannelDialog'
+import { errorMessage } from '@/lib/errorMessage'
 
 export function ChannelDetail() {
   const { id = '' } = useParams()
@@ -45,7 +46,11 @@ export function ChannelDetail() {
   const saveSettings = async (changes: UpdateChannelRequest) => {
     await updateChannelSettings(id, changes)
     if (changes.video_limit !== undefined) {
-      void refreshing(() => reconcileChannel(id))()
+      refreshing(() => reconcileChannel(id))().catch((err: unknown) =>
+        window.alert(
+          `Saved the settings of "${channel?.name ?? id}", but failed to sync it: ${errorMessage(err)}`,
+        ),
+      )
     }
   }
 

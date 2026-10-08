@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
@@ -315,5 +315,33 @@ describe('ChannelDetail', () => {
     )
     expect(sentBodies(fetchMock, 'PATCH', '/api/channels/chan')).toEqual([{ video_limit: 20 }])
     expect(dialog).not.toBeInTheDocument()
+  })
+
+  it('alerts when the sync after saving fails', async () => {
+    const alert = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    renderChannel(
+      {
+        'GET /api/channels': [aChannel({ id: 'chan', name: 'The Channel', video_limit: 5 })],
+        'GET /api/channels/chan/videos': [aVideo()],
+        'PATCH /api/channels/chan': aChannel({ id: 'chan', video_limit: 20 }),
+        'POST /api/channels/chan/reconcile': { status: 502, error: 'yt-dlp failed' },
+      },
+      '/channels/chan',
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    const limit = within(dialog).getByLabelText('Video limit')
+    await user.clear(limit)
+    await user.type(limit, '20')
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
+
+    await waitFor(() =>
+      expect(alert).toHaveBeenCalledWith(
+        'Saved the settings of "The Channel", but failed to sync it: yt-dlp failed',
+      ),
+    )
   })
 })
