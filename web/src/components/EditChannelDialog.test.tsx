@@ -34,4 +34,14 @@ describe('EditChannelDialog', () => {
     expect(onSave).toHaveBeenCalledExactlyOnceWith({ quality: 'low' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
+
+  it('sends nothing and closes when nothing changed', async () => {
+    const { onSave, onOpenChange } = renderDialog(aChannel({ quality: 'high', video_limit: 5 }))
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })

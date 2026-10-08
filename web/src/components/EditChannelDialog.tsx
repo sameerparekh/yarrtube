@@ -49,7 +49,10 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    await onSave(channelSettingsChanges(channel, form))
+    const changes = channelSettingsChanges(channel, form)
+    if (Object.keys(changes).length > 0) {
+      await onSave(changes)
+    }
     onClose()
   }
 
