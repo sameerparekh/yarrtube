@@ -32,7 +32,7 @@
 - [x] 2.10 `it_should_list_channels_with_their_quality_and_video_limit`: list response carries each channel's quality and limit
 - [x] 2.11 `lib/channelSettings` unit tests: `channelSettingsChanges` returns only changed fields or `{}`; `lowersVideoLimit` true only below the current limit
 - [x] 2.12 `EditChannelDialog` "opens prefilled with the channel's current settings"
-- [ ] 2.13 `EditChannelDialog` "sends only the changed quality"
+- [x] 2.13 `EditChannelDialog` "sends only the changed quality"
 - [ ] 2.14 `EditChannelDialog` "sends nothing and closes when nothing changed"
 - [ ] 2.15 `EditChannelDialog` "warns when lowering the video limit" (and not when raising)
 - [ ] 2.16 `EditChannelDialog` "does not submit an out-of-range video limit"

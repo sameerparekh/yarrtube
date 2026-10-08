@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import type { UpdateChannelRequest } from '@/api/client'
 import type { ChannelListItem } from '@/api/types'
-import type { ChannelSettingsForm } from '@/lib/channelSettings'
+import { channelSettingsChanges, type ChannelSettingsForm } from '@/lib/channelSettings'
 import { VideoQualityField } from './VideoQualityField'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -15,7 +16,7 @@ interface EditChannelDialogProps {
   onSave: (changes: UpdateChannelRequest) => Promise<void>
 }
 
-export function EditChannelDialog({ channel, open, onOpenChange }: EditChannelDialogProps) {
+export function EditChannelDialog({ channel, open, onOpenChange, onSave }: EditChannelDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-5 p-6 sm:max-w-md">
@@ -23,13 +24,19 @@ export function EditChannelDialog({ channel, open, onOpenChange }: EditChannelDi
         <DialogDescription>{channel.name}</DialogDescription>
         {/* The form unmounts with the dialog, so every open starts from the
             channel's current settings. */}
-        <EditChannelForm channel={channel} />
+        <EditChannelForm channel={channel} onSave={onSave} onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   )
 }
 
-function EditChannelForm({ channel }: { channel: ChannelListItem }) {
+interface EditChannelFormProps {
+  channel: ChannelListItem
+  onSave: (changes: UpdateChannelRequest) => Promise<void>
+  onClose: () => void
+}
+
+function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
   const [form, setForm] = useState<ChannelSettingsForm>({
     quality: channel.quality,
     video_limit: String(channel.video_limit),
@@ -40,8 +47,14 @@ function EditChannelForm({ channel }: { channel: ChannelListItem }) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await onSave(channelSettingsChanges(channel, form))
+    onClose()
+  }
+
   return (
-    <form className="flex min-w-0 flex-col gap-5">
+    <form className="flex min-w-0 flex-col gap-5" onSubmit={handleSubmit}>
       <VideoQualityField
         id="edit-channel-quality"
         value={form.quality}
@@ -60,6 +73,10 @@ function EditChannelForm({ channel }: { channel: ChannelListItem }) {
           required
         />
       </div>
+
+      <Button type="submit" className="self-start">
+        Save
+      </Button>
     </form>
   )
 }
