@@ -4,13 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { ChannelDetail } from './ChannelDetail'
 import type { VideoQuality } from '@/api/types'
-import {
-  aChannel,
-  aVideo,
-  mockApi,
-  renderWithProviders,
-  type Routes as ApiRoutes,
-} from '@/test/helpers'
+import { aChannel, aVideo, mockApi, renderWithProviders, type Routes as ApiRoutes } from '@/test/helpers'
 
 function renderChannel(routes: ApiRoutes, route: string) {
   const fetchMock = mockApi(routes)
@@ -92,7 +86,9 @@ describe('ChannelDetail', () => {
       '/channels/chan',
     )
 
-    await userEvent.setup().click(await screen.findByRole('button', { name: '2:00 Second Video' }))
+    await userEvent
+      .setup()
+      .click(await screen.findByRole('button', { name: '2:00 Second Video' }))
 
     await waitFor(() =>
       expect(document.querySelector('video')?.getAttribute('src')).toBe(
@@ -166,9 +162,7 @@ describe('ChannelDetail', () => {
     expect(
       within(list).queryByRole('button', { name: 'Actions for First Video' }),
     ).not.toBeInTheDocument()
-    expect(
-      within(list).getByRole('button', { name: 'Actions for Second Video' }),
-    ).toBeInTheDocument()
+    expect(within(list).getByRole('button', { name: 'Actions for Second Video' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Actions for First Video' })).toBeInTheDocument()
   })
 

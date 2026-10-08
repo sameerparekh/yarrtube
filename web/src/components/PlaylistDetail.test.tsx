@@ -3,13 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { PlaylistDetail } from './PlaylistDetail'
-import {
-  aPlaylist,
-  aVideo,
-  mockApi,
-  renderWithProviders,
-  type Routes as ApiRoutes,
-} from '@/test/helpers'
+import { aPlaylist, aVideo, mockApi, renderWithProviders, type Routes as ApiRoutes } from '@/test/helpers'
 
 function renderPlaylist(routes: ApiRoutes, route: string) {
   mockApi(routes)
@@ -66,7 +60,9 @@ describe('PlaylistDetail', () => {
       '/playlists/PL1',
     )
 
-    expect(await screen.findByText('No videos recorded for this playlist yet.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('No videos recorded for this playlist yet.'),
+    ).toBeInTheDocument()
     expect(await screen.findByText('No video selected.')).toBeInTheDocument()
   })
 
@@ -133,7 +129,7 @@ describe('PlaylistDetail', () => {
     expect(remove).toHaveBeenCalledOnce()
   })
 
-  it('alerts and leaves the playlist as it was when changing its home setting fails', async () => {
+  it("alerts and leaves the playlist as it was when changing its home setting fails", async () => {
     const alert = vi.spyOn(window, 'alert').mockImplementation(() => {})
     renderPlaylist(
       {
