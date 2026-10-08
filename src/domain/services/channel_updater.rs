@@ -2,6 +2,7 @@ use crate::domain::channel::{Channel, ChannelHandle, UpdateChannelError, VideoLi
 use crate::domain::shared::Quality;
 use crate::infrastructure::repositories::sqlite_channel_repository::ChannelRepository;
 use std::sync::Arc;
+use tracing::info;
 
 /// Changes the settings of an existing channel.
 #[derive(Clone)]
@@ -36,6 +37,12 @@ impl ChannelUpdaterApi for ChannelUpdater {
     ) -> Result<Channel, UpdateChannelError> {
         let channel = Self::apply_settings(self.find_channel(&id)?, quality, video_limit);
         self.update_channel(&channel)?;
+        info!(
+            channel_id = %id,
+            quality = channel.quality.as_str(),
+            video_limit = channel.video_limit.value(),
+            "updated channel settings"
+        );
         Ok(channel)
     }
 }
