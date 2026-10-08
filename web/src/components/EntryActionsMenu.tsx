@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { CheckCheck, EllipsisVertical, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { CheckCheck, EllipsisVertical, Eye, EyeOff, SlidersHorizontal, Trash2 } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,13 +45,14 @@ export function EntryActionsMenu({
   onMarkWatched,
   excludedFromHome,
   onSetExcludedFromHome,
-  onEditRequest: _onEditRequest,
+  onEditRequest,
   onDeleteRequest,
   className,
 }: EntryActionsMenuProps) {
   const [markingWatched, setMarkingWatched] = useState(false)
   const offersHomeItem = excludedFromHome !== undefined && onSetExcludedFromHome !== undefined
-  const hasItemsAboveDelete = Boolean(leadingItems) || Boolean(onMarkWatched) || offersHomeItem
+  const hasItemsAboveDelete =
+    Boolean(leadingItems) || Boolean(onMarkWatched) || offersHomeItem || Boolean(onEditRequest)
 
   return (
     // Non-modal so opening the delete confirmation from it doesn't leave the
@@ -100,6 +101,12 @@ export function EntryActionsMenu({
           >
             {excludedFromHome ? <Eye /> : <EyeOff />}
             {excludedFromHome ? 'Include in home' : 'Exclude from home'}
+          </DropdownMenuItem>
+        )}
+        {onEditRequest && (
+          <DropdownMenuItem onSelect={onEditRequest}>
+            <SlidersHorizontal />
+            Edit settings
           </DropdownMenuItem>
         )}
         {hasItemsAboveDelete && <DropdownMenuSeparator />}

@@ -11,6 +11,7 @@ import {
   markVideoWatched,
   previewChannel,
   previewPlaylist,
+  updateChannel,
   updatePlaylist,
   type UpdateChannelRequest,
 } from './client'
@@ -210,7 +211,14 @@ export function useUpdateChannelSettings(): (
   handle: string,
   changes: UpdateChannelRequest,
 ) => Promise<void> {
-  return useCallback(async () => {}, [])
+  const invalidateLibrary = useInvalidateLibrary()
+  return useCallback(
+    async (handle: string, changes: UpdateChannelRequest) => {
+      await updateChannel(handle, changes)
+      await invalidateLibrary()
+    },
+    [invalidateLibrary],
+  )
 }
 
 /** Refetches the channel and playlist lists (and their video lists) and the home videos. */

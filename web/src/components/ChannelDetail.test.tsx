@@ -3,17 +3,32 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { ChannelDetail } from './ChannelDetail'
-import { aChannel, aVideo, mockApi, renderWithProviders, type Routes as ApiRoutes } from '@/test/helpers'
+import type { VideoQuality } from '@/api/types'
+import {
+  aChannel,
+  aVideo,
+  mockApi,
+  renderWithProviders,
+  type Routes as ApiRoutes,
+} from '@/test/helpers'
 
 function renderChannel(routes: ApiRoutes, route: string) {
-  mockApi(routes)
-  return renderWithProviders(
+  const fetchMock = mockApi(routes)
+  renderWithProviders(
     <Routes>
       <Route path="/channels/:id" element={<ChannelDetail />} />
       <Route path="/" element={<p>home page</p>} />
     </Routes>,
     { route },
   )
+  return { fetchMock }
+}
+
+/** The JSON bodies the page sent with `method` to `path`, in order. */
+function sentBodies(fetchMock: ReturnType<typeof mockApi>, method: string, path: string) {
+  return fetchMock.mock.calls
+    .filter(([url, init]) => url === path && (init as RequestInit | undefined)?.method === method)
+    .map(([, init]) => JSON.parse(((init as RequestInit).body as string | undefined) ?? 'null'))
 }
 
 describe('ChannelDetail', () => {
@@ -77,9 +92,7 @@ describe('ChannelDetail', () => {
       '/channels/chan',
     )
 
-    await userEvent
-      .setup()
-      .click(await screen.findByRole('button', { name: '2:00 Second Video' }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: '2:00 Second Video' }))
 
     await waitFor(() =>
       expect(document.querySelector('video')?.getAttribute('src')).toBe(
@@ -153,7 +166,9 @@ describe('ChannelDetail', () => {
     expect(
       within(list).queryByRole('button', { name: 'Actions for First Video' }),
     ).not.toBeInTheDocument()
-    expect(within(list).getByRole('button', { name: 'Actions for Second Video' })).toBeInTheDocument()
+    expect(
+      within(list).getByRole('button', { name: 'Actions for Second Video' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Actions for First Video' })).toBeInTheDocument()
   })
 
@@ -236,5 +251,42 @@ describe('ChannelDetail', () => {
     expect(
       await screen.findByRole('button', { name: /^Watched.*Second Video$/ }),
     ).toBeInTheDocument()
+  })
+
+  it("edits the channel's settings from its page header menu", async () => {
+    let quality: VideoQuality = 'high'
+    const { fetchMock } = renderChannel(
+      {
+        'GET /api/channels': () => [
+          aChannel({ id: 'chan', name: 'The Channel', quality, video_limit: 5 }),
+        ],
+        'GET /api/channels/chan/videos': [aVideo()],
+        'PATCH /api/channels/chan': () => {
+          quality = 'low'
+          return aChannel({ id: 'chan', quality: 'low', video_limit: 5 })
+        },
+      },
+      '/channels/chan',
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    await user.click(within(dialog).getByRole('combobox', { name: /Video quality/ }))
+    await user.click(await screen.findByRole('option', { name: 'Low' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(dialog).not.toBeInTheDocument())
+    expect(sentBodies(fetchMock, 'PATCH', '/api/channels/chan')).toEqual([{ quality: 'low' }])
+    expect(sentBodies(fetchMock, 'POST', '/api/channels/chan/reconcile')).toEqual([])
+
+    await user.click(screen.getByRole('button', { name: 'More actions for The Channel' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
+    expect(
+      within(await screen.findByRole('dialog', { name: 'Edit channel' })).getByRole('combobox', {
+        name: /Video quality/,
+      }),
+    ).toHaveTextContent('Low')
   })
 })
