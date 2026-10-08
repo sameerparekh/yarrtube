@@ -1,0 +1,58 @@
+## 1. Walking skeleton
+
+- [ ] 1.1 Create every file, type and signature from design.md (## Files, ## Types & Signatures), wired end-to-end with trivial bodies:
+  - Backend:
+    - `Channel::with_quality` / `with_video_limit` returning `self` unchanged
+    - `ChannelView.quality` / `video_limit` filled by `ChannelViewSearcher`
+    - `ChannelRepository::update` on `SqliteChannelRepository` returning `Ok(())`
+    - `UpdateChannelError`; `ChannelUpdater` + `ChannelUpdaterApi::update_settings` returning `NotFound`
+    - DTOs: `UpdateChannelRequest`; `ChannelListItemResponse.quality` / `video_limit` (from the view)
+    - `update_channel` handler returning the updater's result, `NOTHING_TO_UPDATE`, `PATCH /channels/{handle}` route, `ApiServices.channel_updater`, built in `serve.rs`
+  - Existing `ChannelListItemResponse` expectations get the two new fields.
+  - Web:
+    - `ChannelListItem.quality` / `video_limit` + `aChannel` defaults
+    - `UpdateChannelRequest`, `updateChannel` client, `useUpdateChannelSettings`
+    - `lib/channelSettings.ts` returning `{}` / `false`
+    - `EditChannelDialog` rendering an empty dialog, not placed in any view
+    - `EntryActionsMenu` / `DetailHeader` `onEditRequest` prop, unused
+
+  Done when `cargo build` succeeds and `cargo test --locked` and `npm run check` pass.
+
+## 2. Behaviour (TDD)
+
+- [ ] 2.1 `it_should_update_a_channels_quality`: PATCH `{quality: "low"}` on a `high` channel → 200 with `low`, stored as `original.with_quality(Low)`
+- [ ] 2.2 `it_should_update_a_channels_video_limit`: PATCH `{video_limit: 20}` on a limit-5 channel → 200 with 20, stored as `original.with_video_limit(20)`
+- [ ] 2.3 `it_should_update_both_settings_of_a_channel`: both stored and returned
+- [ ] 2.4 `it_should_leave_a_channel_unchanged_if_settings_already_set`: 200, storage unchanged
+- [ ] 2.5 `it_should_fail_to_update_an_unknown_channel`: 404 `channel <handle> not found`, nothing stored
+- [ ] 2.6 `it_should_fail_to_update_if_nothing_to_update`: `{}` → 400 `NOTHING_TO_UPDATE`
+- [ ] 2.7 `it_should_fail_to_update_if_invalid_quality_provided`: 400 with the `Quality` validation message, storage unchanged
+- [ ] 2.8 `it_should_fail_to_update_if_invalid_video_limit_provided`: 1001 → 400 with the `VideoLimit` range message, storage unchanged
+- [ ] 2.9 `it_should_fail_to_update_if_invalid_handle_provided`: 400 with the `ChannelHandle` message
+- [ ] 2.10 `it_should_list_channels_with_their_quality_and_video_limit`: list response carries each channel's quality and limit
+- [ ] 2.11 `lib/channelSettings` unit tests: `channelSettingsChanges` returns only changed fields or `{}`; `lowersVideoLimit` true only below the current limit
+- [ ] 2.12 `EditChannelDialog` "opens prefilled with the channel's current settings"
+- [ ] 2.13 `EditChannelDialog` "sends only the changed quality"
+- [ ] 2.14 `EditChannelDialog` "sends nothing and closes when nothing changed"
+- [ ] 2.15 `EditChannelDialog` "warns when lowering the video limit" (and not when raising)
+- [ ] 2.16 `EditChannelDialog` "does not submit an out-of-range video limit"
+- [ ] 2.17 `EditChannelDialog` "keeps the dialog open and shows the error when saving fails"
+- [ ] 2.18 `ChannelDetail` "edits the channel's settings from its page header menu": "Edit settings" item, PATCH `{quality}` routed, no reconcile
+- [ ] 2.19 `ChannelDetail` "syncs the channel after its video limit changes": PATCH then POST reconcile
+- [ ] 2.20 `ChannelDetail` "alerts when the sync after saving fails"
+- [ ] 2.21 `PlaylistDetail` "offers no Edit settings item"
+
+## 3. Infrastructure adapters (TDD)
+
+- [ ] 3.1 `SqliteChannelRepository` `it_should_update_an_existing_channel`: `update` with new quality and limit → `find` returns them, other fields unchanged
+
+## 4. Verification
+
+- [ ] 4.1 `cargo test --locked`, `cargo fmt --all -- --check` and `cargo clippy --all-targets --all-features --locked -- -D warnings` pass
+- [ ] 4.2 `npm run check` passes in `web/`
+- [ ] 4.3 Extend `smoke-tests/tests/channel.spec.js`: change the channel's video quality through its page header "⋮" menu; reopening "Edit settings" shows the new value. Run `scripts/run-smoke-tests.sh` and it passes
+- [ ] 4.4 Manual check with `scripts/run-local.sh`: edit a channel's quality and limit; raising the limit syncs and downloads more; lowering shows the deletion warning
+
+## Workflow follow-up
+
+- Archive the change (`/opsx:archive`) once implemented, then open the PR referencing #88.
