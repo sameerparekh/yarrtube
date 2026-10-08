@@ -44,7 +44,7 @@
 
 ## 3. Infrastructure adapters (TDD)
 
-- [ ] 3.1 `SqliteChannelRepository` `it_should_update_an_existing_channel`: `update` with new quality and limit → `find` returns them, other fields unchanged
+- [x] 3.1 `SqliteChannelRepository` `it_should_update_an_existing_channel`: `update` with new quality and limit → `find` returns them, other fields unchanged
 
 ## 4. Verification
 

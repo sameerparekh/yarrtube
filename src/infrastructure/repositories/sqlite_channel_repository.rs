@@ -294,6 +294,23 @@ mod tests {
     }
 
     #[test]
+    fn it_should_update_an_existing_channel() {
+        let repo = repo();
+        let original = channel("@somechannel", "Some Channel");
+        let other = channel("@other", "Other");
+        repo.insert(&original).unwrap();
+        repo.insert(&other).unwrap();
+        let updated = original
+            .with_quality(Quality::Low)
+            .with_video_limit(VideoLimit::new(42).unwrap());
+
+        repo.update(&updated).unwrap();
+
+        assert_eq!(repo.find(&updated.id).unwrap(), Some(updated));
+        assert_eq!(repo.find(&other.id).unwrap(), Some(other));
+    }
+
+    #[test]
     fn it_should_fail_when_inserting_a_duplicate_id() {
         let repo = repo();
         let channel = channel("@somechannel", "Some Channel");
