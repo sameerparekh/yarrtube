@@ -23,7 +23,7 @@
 - [x] 2.1 `it_should_update_a_channels_quality`: PATCH `{quality: "low"}` on a `high` channel → 200 with `low`, stored as `original.with_quality(Low)`
 - [x] 2.2 `it_should_update_a_channels_video_limit`: PATCH `{video_limit: 20}` on a limit-5 channel → 200 with 20, stored as `original.with_video_limit(20)`
 - [x] 2.3 `it_should_update_both_settings_of_a_channel`: both stored and returned
-- [ ] 2.4 `it_should_leave_a_channel_unchanged_if_settings_already_set`: 200, storage unchanged
+- [x] 2.4 `it_should_leave_a_channel_unchanged_if_settings_already_set`: 200, storage unchanged
 - [ ] 2.5 `it_should_fail_to_update_an_unknown_channel`: 404 `channel <handle> not found`, nothing stored
 - [ ] 2.6 `it_should_fail_to_update_if_nothing_to_update`: `{}` → 400 `NOTHING_TO_UPDATE`
 - [ ] 2.7 `it_should_fail_to_update_if_invalid_quality_provided`: 400 with the `Quality` validation message, storage unchanged
