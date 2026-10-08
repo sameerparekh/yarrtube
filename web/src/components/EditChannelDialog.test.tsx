@@ -70,4 +70,18 @@ describe('EditChannelDialog', () => {
 
     expect(screen.queryByText(/The next sync deletes/)).not.toBeInTheDocument()
   })
+
+  it('does not submit an out-of-range video limit', async () => {
+    const { onSave, onOpenChange } = renderDialog(aChannel({ video_limit: 10 }))
+    const user = userEvent.setup()
+    const limit = screen.getByLabelText('Video limit')
+
+    await user.clear(limit)
+    await user.type(limit, '1001')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(limit).toBeInvalid()
+    expect(onSave).not.toHaveBeenCalled()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
 })

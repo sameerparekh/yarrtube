@@ -35,7 +35,7 @@
 - [x] 2.13 `EditChannelDialog` "sends only the changed quality"
 - [x] 2.14 `EditChannelDialog` "sends nothing and closes when nothing changed"
 - [x] 2.15 `EditChannelDialog` "warns when lowering the video limit" (and not when raising)
-- [ ] 2.16 `EditChannelDialog` "does not submit an out-of-range video limit"
+- [x] 2.16 `EditChannelDialog` "does not submit an out-of-range video limit"
 - [ ] 2.17 `EditChannelDialog` "keeps the dialog open and shows the error when saving fails"
 - [ ] 2.18 `ChannelDetail` "edits the channel's settings from its page header menu": "Edit settings" item, PATCH `{quality}` routed, no reconcile
 - [ ] 2.19 `ChannelDetail` "syncs the channel after its video limit changes": PATCH then POST reconcile
