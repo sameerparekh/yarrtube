@@ -289,4 +289,31 @@ describe('ChannelDetail', () => {
       }),
     ).toHaveTextContent('Low')
   })
+
+  it('syncs the channel after its video limit changes', async () => {
+    const { fetchMock } = renderChannel(
+      {
+        'GET /api/channels': [aChannel({ id: 'chan', name: 'The Channel', video_limit: 5 })],
+        'GET /api/channels/chan/videos': [aVideo()],
+        'PATCH /api/channels/chan': aChannel({ id: 'chan', video_limit: 20 }),
+        'POST /api/channels/chan/reconcile': null,
+      },
+      '/channels/chan',
+    )
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    const limit = within(dialog).getByLabelText('Video limit')
+    await user.clear(limit)
+    await user.type(limit, '20')
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
+
+    await waitFor(() =>
+      expect(sentBodies(fetchMock, 'POST', '/api/channels/chan/reconcile')).toHaveLength(1),
+    )
+    expect(sentBodies(fetchMock, 'PATCH', '/api/channels/chan')).toEqual([{ video_limit: 20 }])
+    expect(dialog).not.toBeInTheDocument()
+  })
 })

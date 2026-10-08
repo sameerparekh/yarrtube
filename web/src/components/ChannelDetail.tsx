@@ -8,7 +8,13 @@ import {
   useRemoveQuery,
   useUpdateChannelSettings,
 } from '@/api/queries'
-import { reconcileChannel, deleteChannel, markChannelWatched, avatarMediaUrl } from '@/api/client'
+import {
+  reconcileChannel,
+  deleteChannel,
+  markChannelWatched,
+  avatarMediaUrl,
+  type UpdateChannelRequest,
+} from '@/api/client'
 import { useWatchProgress } from '@/hooks/useWatchProgress'
 import { usePlaybackSpeed } from '@/hooks/usePlaybackSpeed'
 import { useVideoSelection } from '@/hooks/useVideoSelection'
@@ -33,6 +39,15 @@ export function ChannelDetail() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
   useWatchProgress(videoElement, selectedVideo)
   const playbackSpeed = usePlaybackSpeed(videoElement, selectedVideo?.id ?? null)
+
+  // A new limit applies at the next sync, so run one now rather than leave
+  // the channel short of (or past) its limit until the recurring pass.
+  const saveSettings = async (changes: UpdateChannelRequest) => {
+    await updateChannelSettings(id, changes)
+    if (changes.video_limit !== undefined) {
+      void refreshing(() => reconcileChannel(id))()
+    }
+  }
 
   if (channelsError) {
     return (
@@ -70,7 +85,7 @@ export function ChannelDetail() {
         channel={channel}
         open={editing}
         onOpenChange={setEditing}
-        onSave={(changes) => updateChannelSettings(id, changes)}
+        onSave={saveSettings}
       />
       <div className="grid grid-cols-1 gap-4 md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,1fr)_360px] md:items-start md:gap-6 md:overflow-hidden">
         <div className="contents md:flex md:h-full md:min-w-0 md:flex-col md:gap-4 md:overflow-y-auto">
