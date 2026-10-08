@@ -898,6 +898,37 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_update_both_settings_of_a_channel() {
+        let db = TestDatabase::new();
+        let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
+        channel_repository.insert(&channel("@somechannel")).unwrap();
+        let channel_updater = ChannelUpdater::new(channel_repository.clone());
+
+        let request = UpdateChannelRequest {
+            quality: Some("mid".to_string()),
+            video_limit: Some(3),
+        };
+        let response = update(channel_updater, "@somechannel", request).await;
+
+        assert_eq!(
+            response,
+            Ok(ChannelResponse {
+                quality: "mid".to_string(),
+                video_limit: 3,
+                ..some_channel_response()
+            })
+        );
+        assert_eq!(
+            channel_repository.list().unwrap(),
+            vec![
+                channel("@somechannel")
+                    .with_quality(Quality::Mid)
+                    .with_video_limit(VideoLimit::new(3).unwrap())
+            ]
+        );
+    }
+
+    #[tokio::test]
     async fn it_should_list_no_channels() {
         let db = TestDatabase::new();
         let channel_view_searcher = ChannelViewSearcher::new(
