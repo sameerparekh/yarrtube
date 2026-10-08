@@ -1,7 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import type { UpdateChannelRequest } from '@/api/client'
 import type { ChannelListItem } from '@/api/types'
-import { channelSettingsChanges, type ChannelSettingsForm } from '@/lib/channelSettings'
+import {
+  channelSettingsChanges,
+  lowersVideoLimit,
+  type ChannelSettingsForm,
+} from '@/lib/channelSettings'
 import { VideoQualityField } from './VideoQualityField'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -47,6 +51,8 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const lowersLimit = lowersVideoLimit(channel.video_limit, form.video_limit)
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const changes = channelSettingsChanges(channel, form)
@@ -73,8 +79,15 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
           step="1"
           value={form.video_limit}
           onChange={setField('video_limit')}
+          aria-describedby={lowersLimit ? 'edit-channel-video-limit-warning' : undefined}
           required
         />
+        {lowersLimit && (
+          <p id="edit-channel-video-limit-warning" className="text-xs text-destructive">
+            The next sync deletes the downloaded videos of this channel beyond the{' '}
+            {Number(form.video_limit)} newest.
+          </p>
+        )}
       </div>
 
       <Button type="submit" className="self-start">

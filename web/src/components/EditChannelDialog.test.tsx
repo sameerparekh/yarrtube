@@ -44,4 +44,30 @@ describe('EditChannelDialog', () => {
     expect(onSave).not.toHaveBeenCalled()
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
+
+  it('warns when lowering the video limit', async () => {
+    renderDialog(aChannel({ video_limit: 10 }))
+    const user = userEvent.setup()
+    const limit = screen.getByLabelText('Video limit')
+
+    await user.clear(limit)
+    await user.type(limit, '3')
+
+    expect(
+      screen.getByText(
+        'The next sync deletes the downloaded videos of this channel beyond the 3 newest.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('does not warn when raising the video limit', async () => {
+    renderDialog(aChannel({ video_limit: 10 }))
+    const user = userEvent.setup()
+    const limit = screen.getByLabelText('Video limit')
+
+    await user.clear(limit)
+    await user.type(limit, '20')
+
+    expect(screen.queryByText(/The next sync deletes/)).not.toBeInTheDocument()
+  })
 })
