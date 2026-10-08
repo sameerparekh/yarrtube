@@ -50,7 +50,8 @@
 
 - [x] 4.1 `cargo test --locked`, `cargo fmt --all -- --check` and `cargo clippy --all-targets --all-features --locked -- -D warnings` pass
 - [x] 4.2 `npm run check` passes in `web/`
-- [ ] 4.3 Extend `smoke-tests/tests/channel.spec.js`: change the channel's video quality through its page header "⋮" menu; reopening "Edit settings" shows the new value. Run `scripts/run-smoke-tests.sh` and it passes
+- [x] 4.3 Extend `smoke-tests/tests/channel.spec.js`: change the channel's video quality through its page header "⋮" menu; reopening "Edit settings" shows the new value. Run `scripts/run-smoke-tests.sh` and it passes
+  - 22/23 passed, including the channel lifecycle with the new step. The one failure, `mobile-sidebar.spec.js` "opens via the menu button and closes", is a pre-existing flake: run alone against an image built from `main` it failed 3 of 5 times the same way (the overlay intercepts the "Close menu" click).
 - [x] 4.4 Manual check with `scripts/run-local.sh`: edit a channel's quality and limit; raising the limit syncs and downloads more; lowering shows the deletion warning
   - Done against the real binary on a scratch DB with a seeded channel (no `YOUTUBE_API_KEY` available, so `run-local.sh` couldn't add one): PATCH validation/404 via curl; UI "Edit settings" opens prefilled; lowering 10 → 3 shows the warning; saving stores it and the triggered sync listed exactly 3 videos.
 
