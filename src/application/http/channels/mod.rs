@@ -87,9 +87,10 @@ pub async fn update_channel(
     Json(request): Json<UpdateChannelRequest>,
 ) -> Result<Json<ChannelResponse>, ApiError> {
     let id = ChannelHandle::new(handle)?;
-    let _ = (request, NOTHING_TO_UPDATE);
+    let quality = request.quality.map(Quality::new).transpose()?;
+    let _ = NOTHING_TO_UPDATE;
 
-    match run_blocking(move || channel_updater.update_settings(id, None, None)).await? {
+    match run_blocking(move || channel_updater.update_settings(id, quality, None)).await? {
         Ok(channel) => Ok(Json(ChannelResponse::from(channel))),
         Err(e @ UpdateChannelError::NotFound(_)) => Err(ApiError::new(StatusCode::NOT_FOUND, e)),
         Err(e @ UpdateChannelError::Repository(_)) => Err(ApiError::internal(e)),
@@ -840,6 +841,32 @@ mod tests {
             Err(ApiError::bad_request(
                 "Channel handle must start with \"@\" (got \"noatsign\")"
             ))
+        );
+    }
+
+    #[tokio::test]
+    async fn it_should_update_a_channels_quality() {
+        let db = TestDatabase::new();
+        let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
+        channel_repository.insert(&channel("@somechannel")).unwrap();
+        let channel_updater = ChannelUpdater::new(channel_repository.clone());
+
+        let request = UpdateChannelRequest {
+            quality: Some("low".to_string()),
+            ..update_request()
+        };
+        let response = update(channel_updater, "@somechannel", request).await;
+
+        assert_eq!(
+            response,
+            Ok(ChannelResponse {
+                quality: "low".to_string(),
+                ..some_channel_response()
+            })
+        );
+        assert_eq!(
+            channel_repository.list().unwrap(),
+            vec![channel("@somechannel").with_quality(Quality::Low)]
         );
     }
 
@@ -1631,6 +1658,13 @@ mod tests {
         }
     }
 
+    fn update_request() -> UpdateChannelRequest {
+        UpdateChannelRequest {
+            quality: None,
+            video_limit: None,
+        }
+    }
+
     fn some_channel_response() -> ChannelResponse {
         ChannelResponse {
             id: "@somechannel".to_string(),
@@ -1679,6 +1713,20 @@ mod tests {
         channel_handle: &str,
     ) -> Result<StatusCode, ApiError> {
         delete_channel(State(channel_deleter), Path(channel_handle.to_string())).await
+    }
+
+    async fn update(
+        channel_updater: ChannelUpdater,
+        channel_handle: &str,
+        request: UpdateChannelRequest,
+    ) -> Result<ChannelResponse, ApiError> {
+        update_channel(
+            State(channel_updater),
+            Path(channel_handle.to_string()),
+            Json(request),
+        )
+        .await
+        .map(|Json(channel)| channel)
     }
 
     async fn list(

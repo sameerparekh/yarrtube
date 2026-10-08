@@ -40,8 +40,8 @@ impl Channel {
         }
     }
 
-    pub fn with_quality(self, _quality: Quality) -> Self {
-        self
+    pub fn with_quality(self, quality: Quality) -> Self {
+        Self { quality, ..self }
     }
 
     pub fn with_video_limit(self, _video_limit: VideoLimit) -> Self {

@@ -6,7 +6,6 @@ use std::sync::Arc;
 /// Changes the settings of an existing channel.
 #[derive(Clone)]
 pub struct ChannelUpdater {
-    #[allow(dead_code)]
     repository: Arc<dyn ChannelRepository>,
 }
 
@@ -32,9 +31,31 @@ impl ChannelUpdaterApi for ChannelUpdater {
     fn update_settings(
         &self,
         id: ChannelHandle,
-        _quality: Option<Quality>,
+        quality: Option<Quality>,
         _video_limit: Option<VideoLimit>,
     ) -> Result<Channel, UpdateChannelError> {
-        Err(UpdateChannelError::NotFound(id))
+        let channel = self.find_channel(&id)?;
+        let channel = match quality {
+            Some(quality) => channel.with_quality(quality),
+            None => channel,
+        };
+        self.update_channel(&channel)?;
+        Ok(channel)
+    }
+}
+
+impl ChannelUpdater {
+    fn find_channel(&self, id: &ChannelHandle) -> Result<Channel, UpdateChannelError> {
+        match self.repository.find(id) {
+            Ok(Some(channel)) => Ok(channel),
+            Ok(None) => Err(UpdateChannelError::NotFound(id.clone())),
+            Err(e) => Err(UpdateChannelError::Repository(e)),
+        }
+    }
+
+    fn update_channel(&self, channel: &Channel) -> Result<(), UpdateChannelError> {
+        self.repository
+            .update(channel)
+            .map_err(UpdateChannelError::Repository)
     }
 }

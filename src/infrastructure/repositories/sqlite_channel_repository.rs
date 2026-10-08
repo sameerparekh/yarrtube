@@ -85,7 +85,16 @@ impl ChannelRepository for SqliteChannelRepository {
         Ok(())
     }
 
-    fn update(&self, _channel: &Channel) -> anyhow::Result<()> {
+    fn update(&self, channel: &Channel) -> anyhow::Result<()> {
+        let conn = self.db.write()?;
+        conn.execute(
+            "UPDATE channels SET quality = ?2 WHERE id = ?1",
+            params![channel.id.as_str(), channel.quality.as_str()],
+        )
+        .inspect_err(
+            |e| tracing::error!(channel_id = %channel.id, error = %e, "failed to update channel"),
+        )
+        .context("failed to update channel")?;
         Ok(())
     }
 
