@@ -84,4 +84,20 @@ describe('EditChannelDialog', () => {
     expect(onSave).not.toHaveBeenCalled()
     expect(onOpenChange).not.toHaveBeenCalled()
   })
+
+  it('keeps the dialog open and shows the error when saving fails', async () => {
+    const onSave = vi.fn(async () => {
+      throw new Error('channel @x not found')
+    })
+    const { onOpenChange } = renderDialog(aChannel({ video_limit: 10 }), onSave)
+    const user = userEvent.setup()
+    const limit = screen.getByLabelText('Video limit')
+
+    await user.clear(limit)
+    await user.type(limit, '20')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(await screen.findByText('channel @x not found')).toBeInTheDocument()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
 })

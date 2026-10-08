@@ -51,15 +51,27 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const [error, setError] = useState<Error | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const lowersLimit = lowersVideoLimit(channel.video_limit, form.video_limit)
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const changes = channelSettingsChanges(channel, form)
-    if (Object.keys(changes).length > 0) {
-      await onSave(changes)
+    if (Object.keys(changes).length === 0) {
+      onClose()
+      return
     }
-    onClose()
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onSave(changes)
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)))
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -90,8 +102,9 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
         )}
       </div>
 
-      <Button type="submit" className="self-start">
-        Save
+      {error && <p className="text-sm text-destructive">{error.message}</p>}
+      <Button type="submit" disabled={submitting} className="self-start">
+        {submitting ? 'Saving…' : 'Save'}
       </Button>
     </form>
   )
