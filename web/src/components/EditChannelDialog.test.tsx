@@ -100,4 +100,17 @@ describe('EditChannelDialog', () => {
     expect(await screen.findByText('channel @x not found')).toBeInTheDocument()
     expect(onOpenChange).not.toHaveBeenCalled()
   })
+
+  it('sends nothing when the dialog is closed without saving', async () => {
+    const { onSave, onOpenChange } = renderDialog(aChannel({ video_limit: 10 }))
+    const user = userEvent.setup()
+    const limit = screen.getByLabelText('Video limit')
+
+    await user.clear(limit)
+    await user.type(limit, '20')
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    expect(onSave).not.toHaveBeenCalled()
+  })
 })

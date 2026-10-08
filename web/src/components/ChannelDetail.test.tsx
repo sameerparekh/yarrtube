@@ -313,7 +313,7 @@ describe('ChannelDetail', () => {
 
   it('alerts when the sync after saving fails', async () => {
     const alert = vi.spyOn(window, 'alert').mockImplementation(() => {})
-    renderChannel(
+    const { fetchMock } = renderChannel(
       {
         'GET /api/channels': [aChannel({ id: 'chan', name: 'The Channel', video_limit: 5 })],
         'GET /api/channels/chan/videos': [aVideo()],
@@ -337,5 +337,7 @@ describe('ChannelDetail', () => {
         'Saved the settings of "The Channel", but failed to sync it: yt-dlp failed',
       ),
     )
+    expect(sentBodies(fetchMock, 'PATCH', '/api/channels/chan')).toEqual([{ video_limit: 20 }])
+    expect(dialog).not.toBeInTheDocument()
   })
 })
