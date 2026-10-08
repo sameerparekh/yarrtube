@@ -1062,6 +1062,51 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_list_channels_with_their_quality_and_video_limit() {
+        let db = TestDatabase::new();
+        let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
+        channel_repository
+            .insert(&Channel {
+                name: "A".to_string(),
+                ..channel("@a")
+            })
+            .unwrap();
+        channel_repository
+            .insert(&Channel {
+                name: "B".to_string(),
+                ..channel("@b")
+                    .with_quality(Quality::Low)
+                    .with_video_limit(VideoLimit::new(25).unwrap())
+            })
+            .unwrap();
+        let channel_view_searcher = ChannelViewSearcher::new(
+            channel_repository,
+            Arc::new(SqliteChannelVideoRepository::new(db.database())),
+            Arc::new(SqliteVideoRepository::new(db.database())),
+        );
+
+        let response = list(channel_view_searcher).await;
+
+        assert_eq!(
+            response,
+            Ok(vec![
+                ChannelListItemResponse {
+                    id: "@a".to_string(),
+                    name: "A".to_string(),
+                    ..some_channel_list_item_response()
+                },
+                ChannelListItemResponse {
+                    id: "@b".to_string(),
+                    name: "B".to_string(),
+                    quality: "low".to_string(),
+                    video_limit: 25,
+                    ..some_channel_list_item_response()
+                },
+            ])
+        );
+    }
+
+    #[tokio::test]
     async fn it_should_list_channels_sorted_by_name_ignoring_case() {
         let db = TestDatabase::new();
         let channel_repository = Arc::new(SqliteChannelRepository::new(db.database()));
