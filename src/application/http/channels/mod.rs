@@ -1016,6 +1016,22 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn it_should_fail_to_update_if_invalid_handle_provided() {
+        let request = UpdateChannelRequest {
+            quality: Some("low".to_string()),
+            ..update_request()
+        };
+        let response = update(any_channel_updater(), "noatsign", request).await;
+
+        assert_eq!(
+            response,
+            Err(ApiError::bad_request(
+                "Channel handle must start with \"@\" (got \"noatsign\")"
+            ))
+        );
+    }
+
+    #[tokio::test]
     async fn it_should_list_no_channels() {
         let db = TestDatabase::new();
         let channel_view_searcher = ChannelViewSearcher::new(
