@@ -85,7 +85,7 @@ test('channel lifecycle: add, download, play, resume, mark watched, sync, edit s
   const editChannel = async () => {
     await page.getByRole('button', { name: /^More actions for / }).click()
     await page.getByRole('menuitem', { name: 'Edit settings' }).click()
-    return page.getByRole('dialog', { name: 'Edit channel' })
+    return page.getByRole('dialog', { name: /^Edit .+ settings$/ })
   }
   let editDialog = await editChannel()
   await editDialog.getByRole('combobox', { name: /Video quality/ }).click()

@@ -266,7 +266,7 @@ describe('ChannelDetail', () => {
 
     await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
-    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    const dialog = await screen.findByRole('dialog', { name: 'Edit The Channel settings' })
     await user.click(within(dialog).getByRole('combobox', { name: /Video quality/ }))
     await user.click(await screen.findByRole('option', { name: 'Low' }))
     await user.click(within(dialog).getByRole('button', { name: 'Save' }))
@@ -278,7 +278,7 @@ describe('ChannelDetail', () => {
     await user.click(screen.getByRole('button', { name: 'More actions for The Channel' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
     expect(
-      within(await screen.findByRole('dialog', { name: 'Edit channel' })).getByRole('combobox', {
+      within(await screen.findByRole('dialog', { name: 'Edit The Channel settings' })).getByRole('combobox', {
         name: /Video quality/,
       }),
     ).toHaveTextContent('Low')
@@ -298,7 +298,7 @@ describe('ChannelDetail', () => {
 
     await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
-    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    const dialog = await screen.findByRole('dialog', { name: 'Edit The Channel settings' })
     const limit = within(dialog).getByLabelText('Video limit')
     await user.clear(limit)
     await user.type(limit, '20')
@@ -326,7 +326,7 @@ describe('ChannelDetail', () => {
 
     await user.click(await screen.findByRole('button', { name: 'More actions for The Channel' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Edit settings' }))
-    const dialog = await screen.findByRole('dialog', { name: 'Edit channel' })
+    const dialog = await screen.findByRole('dialog', { name: 'Edit The Channel settings' })
     const limit = within(dialog).getByLabelText('Video limit')
     await user.clear(limit)
     await user.type(limit, '20')

@@ -24,8 +24,10 @@ export function EditChannelDialog({ channel, open, onOpenChange, onSave }: EditC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-5 p-6 sm:max-w-md">
-        <DialogTitle>Edit channel</DialogTitle>
-        <DialogDescription>{channel.name}</DialogDescription>
+        <DialogTitle>Edit {channel.name} settings</DialogTitle>
+        <DialogDescription className="sr-only">
+          Change the video quality and video limit of {channel.name}.
+        </DialogDescription>
         {/* The form unmounts with the dialog, so every open starts from the
             channel's current settings. */}
         <EditChannelForm channel={channel} onSave={onSave} onClose={() => onOpenChange(false)} />
@@ -54,6 +56,7 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
   const [error, setError] = useState<Error | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const lowersLimit = lowersVideoLimit(channel.video_limit, form.video_limit)
+  const changesQuality = form.quality !== channel.quality
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -76,11 +79,19 @@ function EditChannelForm({ channel, onSave, onClose }: EditChannelFormProps) {
 
   return (
     <form className="flex min-w-0 flex-col gap-5" onSubmit={handleSubmit}>
-      <VideoQualityField
-        id="edit-channel-quality"
-        value={form.quality}
-        onChange={setField('quality')}
-      />
+      <div className="flex flex-col gap-1.5">
+        <VideoQualityField
+          id="edit-channel-quality"
+          value={form.quality}
+          onChange={setField('quality')}
+        />
+        {changesQuality && (
+          <p className="text-xs text-muted-foreground">
+            The new quality applies to new videos only. Videos already downloaded keep their current
+            quality.
+          </p>
+        )}
+      </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="edit-channel-video-limit">Video limit</Label>
         <Input

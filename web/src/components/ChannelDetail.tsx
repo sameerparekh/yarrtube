@@ -6,24 +6,17 @@ import {
   useChannelVideos,
   useLibraryAction,
   useRemoveQuery,
-  useUpdateChannelSettings,
 } from '@/api/queries'
-import {
-  reconcileChannel,
-  deleteChannel,
-  markChannelWatched,
-  avatarMediaUrl,
-  type UpdateChannelRequest,
-} from '@/api/client'
+import { reconcileChannel, deleteChannel, markChannelWatched, avatarMediaUrl } from '@/api/client'
 import { useWatchProgress } from '@/hooks/useWatchProgress'
 import { usePlaybackSpeed } from '@/hooks/usePlaybackSpeed'
+import { useSaveChannelSettings } from '@/hooks/useSaveChannelSettings'
 import { useVideoSelection } from '@/hooks/useVideoSelection'
 import { VideoPlayer } from './VideoPlayer'
 import { VideoDetail } from './VideoDetail'
 import { VideoListPane } from './VideoListPane'
 import { DetailHeader } from './DetailHeader'
 import { EditChannelDialog } from './EditChannelDialog'
-import { errorMessage } from '@/lib/errorMessage'
 
 export function ChannelDetail() {
   const { id = '' } = useParams()
@@ -31,7 +24,7 @@ export function ChannelDetail() {
   const { data: channels, error: channelsError } = useChannels()
   const refreshing = useLibraryAction()
   const removeQuery = useRemoveQuery()
-  const updateChannelSettings = useUpdateChannelSettings()
+  const saveChannelSettings = useSaveChannelSettings()
   const [editing, setEditing] = useState(false)
   const channel = channels?.find((item) => item.id === id) ?? null
 
@@ -40,19 +33,6 @@ export function ChannelDetail() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
   useWatchProgress(videoElement, selectedVideo)
   const playbackSpeed = usePlaybackSpeed(videoElement, selectedVideo?.id ?? null)
-
-  // A new limit applies at the next sync, so run one now rather than leave
-  // the channel short of (or past) its limit until the recurring pass.
-  const saveSettings = async (changes: UpdateChannelRequest) => {
-    await updateChannelSettings(id, changes)
-    if (changes.video_limit !== undefined) {
-      refreshing(() => reconcileChannel(id))().catch((err: unknown) =>
-        window.alert(
-          `Saved the settings of "${channel?.name ?? id}", but failed to sync it: ${errorMessage(err)}`,
-        ),
-      )
-    }
-  }
 
   if (channelsError) {
     return (
@@ -90,7 +70,7 @@ export function ChannelDetail() {
         channel={channel}
         open={editing}
         onOpenChange={setEditing}
-        onSave={saveSettings}
+        onSave={(changes) => saveChannelSettings(channel, changes)}
       />
       <div className="grid grid-cols-1 gap-4 md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,1fr)_360px] md:items-start md:gap-6 md:overflow-hidden">
         <div className="contents md:flex md:h-full md:min-w-0 md:flex-col md:gap-4 md:overflow-y-auto">

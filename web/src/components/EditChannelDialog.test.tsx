@@ -18,8 +18,7 @@ describe('EditChannelDialog', () => {
   it("opens prefilled with the channel's current settings", () => {
     renderDialog(aChannel({ name: 'Veritasium', quality: 'mid', video_limit: 5 }))
 
-    expect(screen.getByRole('dialog', { name: 'Edit channel' })).toBeInTheDocument()
-    expect(screen.getByText('Veritasium')).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Edit Veritasium settings' })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: /Video quality/ })).toHaveTextContent('Mid')
     expect(screen.getByLabelText('Video limit')).toHaveValue(5)
   })
@@ -33,6 +32,26 @@ describe('EditChannelDialog', () => {
 
     expect(onSave).toHaveBeenCalledExactlyOnceWith({ quality: 'low' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  it('notes that a changed quality applies to new videos only', async () => {
+    renderDialog(aChannel({ quality: 'high' }))
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('combobox', { name: /Video quality/ }))
+    await user.click(await screen.findByRole('option', { name: 'Low' }))
+
+    expect(
+      screen.getByText(
+        'The new quality applies to new videos only. Videos already downloaded keep their current quality.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('does not note anything while the quality is unchanged', () => {
+    renderDialog(aChannel({ quality: 'high' }))
+
+    expect(screen.queryByText(/The new quality applies/)).not.toBeInTheDocument()
   })
 
   it('sends nothing and closes when nothing changed', async () => {
