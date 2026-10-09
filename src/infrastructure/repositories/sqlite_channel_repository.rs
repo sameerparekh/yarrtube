@@ -88,11 +88,16 @@ impl ChannelRepository for SqliteChannelRepository {
     fn update(&self, channel: &Channel) -> anyhow::Result<()> {
         let conn = self.db.write()?;
         conn.execute(
-            "UPDATE channels SET quality = ?2, video_limit = ?3 WHERE id = ?1",
+            "UPDATE channels SET name = ?2, youtube_channel_id = ?3, quality = ?4, video_limit = ?5, path = ?6, avatar_filename = ?7, created_at = ?8 WHERE id = ?1",
             params![
                 channel.id.as_str(),
+                channel.name,
+                channel.youtube_channel_id,
                 channel.quality.as_str(),
-                channel.video_limit.value()
+                channel.video_limit.value(),
+                channel.path.as_str(),
+                channel.avatar_filename,
+                channel.created_at.to_rfc3339()
             ],
         )
         .inspect_err(
@@ -300,9 +305,16 @@ mod tests {
         let other = channel("@other", "Other");
         repo.insert(&original).unwrap();
         repo.insert(&other).unwrap();
-        let updated = original
-            .with_quality(Quality::Low)
-            .with_video_limit(VideoLimit::new(42).unwrap());
+        let updated = Channel {
+            name: "Renamed Channel".to_string(),
+            youtube_channel_id: "UC456".to_string(),
+            quality: Quality::Low,
+            video_limit: VideoLimit::new(42).unwrap(),
+            path: PlaylistPath::new("creators/renamed").unwrap(),
+            avatar_filename: Some("avatar.jpg".to_string()),
+            created_at: DateTime::<Utc>::from_timestamp(60, 0).unwrap(),
+            ..original
+        };
 
         repo.update(&updated).unwrap();
 
