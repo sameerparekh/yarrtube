@@ -130,7 +130,7 @@ The application SHALL display a sidebar listing the titles of tracked channels a
 - **THEN** the sidebar marks that playlist's or channel's entry as active
 
 ### Requirement: Sidebar Row Actions
-Each tracked channel or playlist row in the sidebar SHALL provide an always-visible menu control that does not depend on hover. The menu SHALL offer an action to trigger a sync (reconcile) and an action to delete the entry. For channel rows it SHALL also offer an action to mark the channel watched. For playlist rows it SHALL also offer an action labeled "Exclude from home" when the playlist is shown on home, or "Include in home" when it is excluded, which changes that setting without confirmation and refreshes the home view's sections. When changing the setting fails, the application SHALL tell the user and leave the playlist as it was. The row's unwatched badge SHALL sit at the row's trailing edge, next to the menu control, with no reserved blank space between them. Deleting SHALL require the user to confirm before it takes effect. Marking a channel watched SHALL take effect without confirmation. Deleting the channel or playlist whose detail view is currently open SHALL return the user to the home view.
+Each tracked channel or playlist row in the sidebar SHALL provide an always-visible menu control that does not depend on hover. The menu SHALL offer an action to trigger a sync (reconcile) and an action to delete the entry. For channel rows it SHALL also offer an action to mark the channel watched and an "Edit settings" action that opens the edit channel dialog for that channel. For playlist rows it SHALL also offer an action labeled "Exclude from home" when the playlist is shown on home, or "Include in home" when it is excluded, which changes that setting without confirmation and refreshes the home view's sections. When changing the setting fails, the application SHALL tell the user and leave the playlist as it was. The row's unwatched badge SHALL sit at the row's trailing edge, next to the menu control, with no reserved blank space between them. Deleting SHALL require the user to confirm before it takes effect. Marking a channel watched SHALL take effect without confirmation. Deleting the channel or playlist whose detail view is currently open SHALL return the user to the home view.
 
 #### Scenario: Opening a row's menu on a touch device
 - **WHEN** a user on a touch device taps a sidebar row's menu control
@@ -152,9 +152,17 @@ Each tracked channel or playlist row in the sidebar SHALL provide an always-visi
 - **WHEN** a user chooses the mark-watched action from a channel row's menu
 - **THEN** the application marks that channel watched, and its unwatched badge disappears
 
+#### Scenario: Editing a channel's settings from the sidebar
+- **WHEN** a user chooses "Edit settings" from a channel row's menu
+- **THEN** the edit channel dialog opens for that channel, and saving it behaves as when opened from the channel's page header
+
+#### Scenario: Channel row menu order
+- **WHEN** a user opens a channel row's menu
+- **THEN** it offers, in order, sync, mark-watched, "Edit settings" and delete
+
 #### Scenario: Playlist rows have no mark-watched action
 - **WHEN** a user opens a playlist row's menu
-- **THEN** the menu offers sync, the exclude or include in home action, and delete, and no mark-watched action
+- **THEN** the menu offers sync, the exclude or include in home action, and delete, and no mark-watched action and no "Edit settings" action
 
 #### Scenario: Excluding a playlist from home from the sidebar
 - **WHEN** a user chooses "Exclude from home" from the menu of a playlist shown on home
@@ -1140,11 +1148,11 @@ Each playlist or channel reconciliation task listed in the **Syncs** tab SHALL o
 - **THEN** no task row offers a Run now action
 
 ### Requirement: Edit Channel Dialog
-The edit channel dialog SHALL be titled "Edit channel", name the channel, and show the "Video quality" control and a "Video limit" field (whole numbers from 1 to 1000) prefilled with the channel's current values. Saving SHALL send only the changed settings, close the dialog and refresh the library. When the video limit changed, saving SHALL also trigger a sync of the channel. Cancelling or saving with nothing changed SHALL send nothing.
+The edit channel dialog SHALL be titled "Edit <channel name> settings" and show the "Video quality" control and a "Video limit" field (whole numbers from 1 to 1000) prefilled with the channel's current values. Saving SHALL send only the changed settings, close the dialog and refresh the library. When the video limit changed, saving SHALL also trigger a sync of the channel. Cancelling or saving with nothing changed SHALL send nothing.
 
 #### Scenario: Dialog prefilled with current settings
-- **WHEN** a user chooses "Edit settings" for a channel with quality `mid` and video limit 5
-- **THEN** the "Edit channel" dialog opens with "Video quality" set to Mid and "Video limit" set to 5
+- **WHEN** a user chooses "Edit settings" for a channel named "Veritasium" with quality `mid` and video limit 5
+- **THEN** the "Edit Veritasium settings" dialog opens with "Video quality" set to Mid and "Video limit" set to 5
 
 #### Scenario: Saving a new quality
 - **WHEN** a user changes only the video quality and saves
@@ -1180,3 +1188,14 @@ While the edit channel dialog's video limit is below the channel's current limit
 #### Scenario: Raising the limit
 - **WHEN** a user raises the video limit or leaves it unchanged
 - **THEN** no deletion warning is shown
+
+### Requirement: Changing The Quality Notes It Applies To New Videos Only
+While the edit channel dialog's selected video quality differs from the channel's current quality, the dialog SHALL show an informational (non-warning) note reading "The new quality applies to new videos only. Videos already downloaded keep their current quality."
+
+#### Scenario: Changing the quality
+- **WHEN** a user changes a channel's video quality from High to Low in the edit channel dialog
+- **THEN** the dialog notes that the new quality applies to new videos only and that downloaded videos keep their current quality
+
+#### Scenario: Quality unchanged
+- **WHEN** the selected video quality equals the channel's current quality
+- **THEN** no quality note is shown
